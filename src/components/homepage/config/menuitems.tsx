@@ -1,23 +1,23 @@
-import { MenuItems } from "./types";
+import { MenuItems } from './types';
 
 export const mainMenuItems: MenuItems = {
     items: [
         {
-            name: "Home",
-            href: "/"
+            name: 'Home',
+            href: '/',
         },
         {
-            name: "About",
-            href: "/about"
+            name: 'About',
+            href: '/about',
         },
         {
-            name: "Biologists",
-            href: "/biologists"
+            name: 'Biologists',
+            href: '/biologists',
         },
         {
-            name: "Developers",
-            href: "/developers"
-        }
+            name: 'Developers',
+            href: '/developers',
+        },
     ],
-    defaultActive: "Home"
+    defaultActive: 'Home',
 };

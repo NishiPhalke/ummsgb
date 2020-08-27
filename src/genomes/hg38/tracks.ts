@@ -5,19 +5,19 @@
  * GraphQL tracksets.
  */
 
-import { Domain } from "./types";
+import { Domain } from './types';
 
 /**
  * Creates a track object for requesting aggregated DNase signal for a given region.
  *
  * @param domain the chromosome, start, and end positions of the requested region.
  */
-export const dnasetrack =(domain: Domain) => ({
+export const dnasetrack = (domain: Domain) => ({
     start: domain.start,
     end: domain.end,
     chr1: domain.chromosome!!,
-    url: "gs://data.genomealmanac.org/dnase.hg38.sum.bigWig",
-    preRenderedWidth: 1850
+    url: 'gs://data.genomealmanac.org/dnase.hg38.sum.bigWig',
+    preRenderedWidth: 1850,
 });
 
 /**
@@ -29,8 +29,8 @@ export const h3k4me3track = (domain: Domain) => ({
     start: domain.start,
     end: domain.end,
     chr1: domain.chromosome!!,
-    url: "gs://data.genomealmanac.org/h3k4me3.hg38.sum.bigWig",
-    preRenderedWidth: 1850
+    url: 'gs://data.genomealmanac.org/h3k4me3.hg38.sum.bigWig',
+    preRenderedWidth: 1850,
 });
 
 /**
@@ -42,8 +42,8 @@ export const h3k27actrack = (domain: Domain) => ({
     start: domain.start,
     end: domain.end,
     chr1: domain.chromosome!!,
-    url: "gs://data.genomealmanac.org/h3k27ac.hg38.sum.bigWig",
-    preRenderedWidth: 1850
+    url: 'gs://data.genomealmanac.org/h3k27ac.hg38.sum.bigWig',
+    preRenderedWidth: 1850,
 });
 
 /**
@@ -55,8 +55,8 @@ export const ctcftrack = (domain: Domain) => ({
     start: domain.start,
     end: domain.end,
     chr1: domain.chromosome!!,
-    url: "gs://data.genomealmanac.org/ctcf.hg38.sum.bigWig",
-    preRenderedWidth: 1850
+    url: 'gs://data.genomealmanac.org/ctcf.hg38.sum.bigWig',
+    preRenderedWidth: 1850,
 });
 
 /**
@@ -68,8 +68,8 @@ export const conservationtrack = (domain: Domain) => ({
     start: domain.start,
     end: domain.end,
     chr1: domain.chromosome!!,
-    url: "gs://data.genomealmanac.org/hg38.phyloP100way.bigWig",
-    preRenderedWidth: 1850
+    url: 'gs://data.genomealmanac.org/hg38.phyloP100way.bigWig',
+    preRenderedWidth: 1850,
 });
 
 /**
@@ -81,8 +81,8 @@ export const rampageplus = (domain: Domain) => ({
     start: domain.start,
     end: domain.end,
     chr1: domain.chromosome!!,
-    url: "gs://data.genomealmanac.org/rampage.plus.bigWig",
-    preRenderedWidth: 1850
+    url: 'gs://data.genomealmanac.org/rampage.plus.bigWig',
+    preRenderedWidth: 1850,
 });
 
 /**
@@ -94,7 +94,6 @@ export const rampageminus = (domain: Domain) => ({
     start: domain.start,
     end: domain.end,
     chr1: domain.chromosome!!,
-    url: "gs://data.genomealmanac.org/rampage.minus.bigWig",
-    preRenderedWidth: 1850
+    url: 'gs://data.genomealmanac.org/rampage.minus.bigWig',
+    preRenderedWidth: 1850,
 });
-

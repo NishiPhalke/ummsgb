@@ -8,23 +8,23 @@ import { Genomes, Data, Embedding, ContentDivider } from './content';
 
 const HomePage = () => (
     <>
-      <MainMasthead>
-        <MainMenu items={mainMenuItems.items} active={mainMenuItems.defaultActive} />
-      </MainMasthead>
-      <Segment vertical>
-        <Container>
-          <Grid className="middle aligned">
-            <Grid.Row />
-            <Genomes />
-            <ContentDivider />
-            <Data />
-            <ContentDivider />
-            <Embedding />
-            <Grid.Row />
-          </Grid>
-        </Container>
-      </Segment>
-      <Footer />
+        <MainMasthead>
+            <MainMenu items={mainMenuItems.items} active={mainMenuItems.defaultActive} />
+        </MainMasthead>
+        <Segment vertical>
+            <Container>
+                <Grid className="middle aligned">
+                    <Grid.Row />
+                    <Genomes />
+                    <ContentDivider />
+                    <Data />
+                    <ContentDivider />
+                    <Embedding />
+                    <Grid.Row />
+                </Grid>
+            </Container>
+        </Segment>
+        <Footer />
     </>
 );
 export default HomePage;

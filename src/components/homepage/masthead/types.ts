@@ -1,16 +1,15 @@
-import { Item } from "../config/types"
-
+import { Item } from '../config/types';
 
 export type MainMastheadProps = {
-    children: any;    
-}
+    children: any;
+};
 
 export type MenuContentProps = {
-    items: Item[]
+    items: Item[];
     active: string;
-}
+};
 
 export type MainMenuProps = {
-    items: Item[]
+    items: Item[];
     active: string;
-}
+};
