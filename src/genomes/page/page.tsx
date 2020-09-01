@@ -1,14 +1,16 @@
 import { GenomeBrowserPageProps, AssemblyInfo } from './types';
-import React, { useState, useEffect } from 'react';
-import { Hg38Browser } from '../hg38';
+import { genomeConfig } from '../genomes';
+import React, { useState, useEffect, useRef } from 'react';
 import GenomePageMenu from './menu';
 import { ASSEMBLY_INFO_QUERY, CHROM_LENGTHS_QUERY } from './queries';
 import { Domain } from './../hg38/types';
 import { SearchBox } from '../../components/search';
 import { Cytobands } from '../../components/cytobands';
 import { UCSCControls } from 'umms-gb';
-import { Container, Dimmer, Loader } from 'semantic-ui-react';
+import { Container, Dimmer, Loader, Button } from 'semantic-ui-react';
 import { AddTrackModal } from '../../components/customtrack';
+import { downloadSVG } from './utils';
+
 const parseDomain = (domain: string) => ({
     chromosome: domain.split(':')[0],
     start: +domain.split(':')[1].split('-')[0].replace(/,/g, ''),
@@ -20,27 +22,16 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const [assemblyInfo, setAssemblyInfoData] = useState<AssemblyInfo | null>(null);
     const [chromLength, setChromLength] = useState<number>(0);
     const [modalShown, setModalShown] = useState<boolean>(false);
+
     const [customTracks, setCustomTracks] = useState<
-        | null
+        | undefined
         | {
               title: string;
               color: string;
               track: { start: number; end: number; chr1: string; url: string; preRenderedWidth: number };
           }[]
-    >([
-        {
-            title: 'testtitle',
-            color: '#ff0000',
-            track: {
-                start: 53379291,
-                end: 53416942,
-                chr1: 'chr12',
-                url:
-                    'https://encode-public.s3.amazonaws.com/2016/11/15/09d1d648-2ff7-413d-8b31-a14cc81b3a23/ENCFF991NDB.bigWig',
-                preRenderedWidth: 1850,
-            },
-        },
-    ]);
+    >();
+
     useEffect(() => {
         const fetchData = async () => {
             const response = await fetch('http://35.201.115.1/graphql', {
@@ -51,7 +42,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                 }),
                 headers: { 'Content-Type': 'application/json' },
             });
-            setAssemblyInfoData((await response.json()).data?.assemblies[0] || null);
+            setAssemblyInfoData((await response.json()).data?.genomicAssemblies[0] || null);
         };
         fetchData();
     }, [props.assembly]);
@@ -89,24 +80,42 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         let tracks =
             modalstate === null
                 ? customTracks
-                : [
+                : customTracks !== undefined
+                ? [
                       ...customTracks!!,
                       {
                           title: modalstate.title,
                           color: modalstate.color,
                           track: {
-                              url: modalstate.url,
-                              chr1: modalstate.domain.chromosome!!,
                               start: modalstate.domain.start,
                               end: modalstate.domain.end,
+                              chr1: modalstate.domain.chromosome!!,
+                              url: modalstate.url,
+                              preRenderedWidth: 1850,
+                          },
+                      },
+                  ]
+                : [
+                      {
+                          title: modalstate.title,
+                          color: modalstate.color,
+                          track: {
+                              start: modalstate.domain.start,
+                              end: modalstate.domain.end,
+                              chr1: modalstate.domain.chromosome!!,
+                              url: modalstate.url,
                               preRenderedWidth: 1850,
                           },
                       },
                   ];
         setCustomTracks(tracks);
+
         setModalShown(false);
     };
-
+    const svg = useRef<any>(null);
+    const download = downloadSVG(svg, 'logo.svg');
+    if (props.assembly !== 'hg38' && props.assembly !== 'hg19' && props.assembly !== 'mm10')
+        return <>{'Page under Construction'}</>;
     if (!assemblyInfo || !domain || !chromLength)
         return (
             <React.Fragment>
@@ -118,6 +127,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                 </Container>
             </React.Fragment>
         );
+    let BrowserComponent = genomeConfig[props.assembly].browser;
     return (
         <>
             <GenomePageMenu />
@@ -130,7 +140,10 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                     <UCSCControls onDomainChanged={onDomainChanged} domain={domain} withInput={false} />
                     <br />
                     <div style={{ width: '75%', margin: '0 auto' }}>
-                        <SearchBox onSearchSubmit={(domain: any) => onDomainChanged(parseDomain(domain))} />
+                        <SearchBox
+                            onSearchSubmit={(domain: string) => onDomainChanged(parseDomain(domain))}
+                            assembly={props.assembly === 'hg38' ? 'GRCh38' : props.assembly}
+                        />
                     </div>
                     <br />
                     <div>
@@ -152,7 +165,13 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                             </svg>
                         )}
                     </div>
-                    <Hg38Browser domain={domain} onDomainChanged={onDomainChanged} customTracks={customTracks} />
+                    <BrowserComponent
+                        domain={domain}
+                        assembly={props.assembly}
+                        onDomainChanged={onDomainChanged}
+                        customTracks={customTracks}
+                        svgRef={svg}
+                    />
                     <AddTrackModal
                         onOpen={() => setModalShown(true)}
                         onAccept={onModalAccept}
@@ -161,6 +180,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         domain={domain}
                     />
                     &nbsp;
+                    <Button onClick={download}>{'Download'} </Button>
                 </>
             </div>
         </>

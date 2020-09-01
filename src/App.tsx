@@ -6,6 +6,7 @@ import { HomePage } from './components/homepage';
 import { DevelopersPage } from './components/developerspage';
 import { AboutPage } from './components/aboutpage';
 import { GenomeBrowserPage } from './genomes/page';
+import { GenomePage } from './components/genomepage';
 
 class App extends React.Component {
     render() {
@@ -13,6 +14,9 @@ class App extends React.Component {
             <Router>
                 <Route path="/" exact component={HomePage} />
                 <Route path="/about/" exact component={AboutPage} />
+                <Route path="/genomes/" exact component={GenomePage} />
+                <Route path="/genomes/add/" exact component={DevelopersPage} />
+                <Route path="/biologists/" exact component={GenomePage} />
                 <Route path="/developers/" exact component={DevelopersPage} />
                 <Route
                     path="/browser/:assembly"

@@ -38,14 +38,15 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
                 setTesting(false);
                 props.onAccept && props.onAccept({ url, domain: props.domain, color, title });
             })
-            .catch(() => {
+            .catch((e) => {
+                console.log('catch', e);
                 setError(url);
                 setTesting(false);
             });
     };
     return (
         <>
-            <Modal trigger={<input type="button" value="Add Custom Track" onClick={props.onOpen} />} open={props.open}>
+            <Modal trigger={<Button onClick={props.onOpen}> Add Custom Track</Button>} open={props.open}>
                 <Modal.Header>Add Custom Track</Modal.Header>
                 <Modal.Content>
                     {testing ? (

@@ -4,7 +4,7 @@ export interface Domain {
     end: number;
 }
 
-export type Hg38BrowserProps = {
+export type Hg19BrowserProps = {
     domain: Domain;
     svgRef?: any;
     onDomainChanged: (domain: Domain) => void;

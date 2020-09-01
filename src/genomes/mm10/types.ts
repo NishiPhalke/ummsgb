@@ -4,8 +4,9 @@ export interface Domain {
     end: number;
 }
 
-export type Hg38BrowserProps = {
+export type Mm10BrowserProps = {
     domain: Domain;
+    assembly: string;
     svgRef?: any;
     onDomainChanged: (domain: Domain) => void;
     customTracks?:

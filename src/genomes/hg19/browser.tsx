@@ -1,4 +1,4 @@
-import { Hg38BrowserProps } from './types';
+import { Hg19BrowserProps } from './types';
 import React, { useState } from 'react';
 import {
     StackedTracks,
@@ -29,20 +29,45 @@ const tracks = (range: Domain) => [
     rampageplus(range),
     rampageminus(range),
 ];
-  
-const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
-    const [height, setHeight] = useState<number>(200);    
-    
+const Hg38Browser: React.FC<Hg19BrowserProps> = (props) => {
+    const [height, setHeight] = useState<number>(200);
+    console.log(height, props.customTracks);
+
     return (
         <svg width={2000} height={height} ref={props.svgRef}>
             <StackedTracks id="test_stacked" onHeightChanged={setHeight}>
                 <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
                     <RulerTrack width={2000} height={50} {...(props || {})} />
                 </WrappedTrack>
+                
+              
+                <GraphQLTranscriptTrack
+                    domain={props.domain}
+                    transform={'translate (0,0)'}
+                    assembly={'hg19'}
+                    endpoint={'https://ga.staging.wenglab.org/graphql'}
+                >
+                    <WrappedPackTranscriptTrack
+                        titleSize={12}
+                        trackMargin={12}
+                        title={'GENCODE v29 transcripts'}
+                        color="#8b0000"
+                        onHeightChanged={(h: number) => {
+                            let ht = height
+                            setHeight(
+                                h + ht
+                            );
+                        }}
+                        id="transrthcript"
+                        rowHeight={14}
+                        width={2000}
+                        domain={props.domain}
+                    />
+                </GraphQLTranscriptTrack>
                 <GraphQLTrackSet
                     tracks={tracks(props.domain)}
                     transform={'translate (0,0)'}
-                    id={'hg38_tracks'}
+                    id={'testbigwig'}
                     width={2000}
                     endpoint={'https://ga.staging.wenglab.org/graphql'}
                 >
@@ -114,36 +139,9 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         titleSize={12}
                         trackMargin={12}
                     />
-                </GraphQLTrackSet>                
-                <GraphQLTranscriptTrack
-                    domain={props.domain}
-                    transform={'translate (0,0)'}
-                    assembly={'GRCh38'}
-                    endpoint={'https://ga.staging.wenglab.org/graphql'}
-                >
-                    <WrappedPackTranscriptTrack
-                        titleSize={12}
-                        trackMargin={12}
-                        title={'GENCODE v29 transcripts'}
-                        color="#8b0000"
-                        onHeightChanged={(h: number) => {                                 
-                            setHeight(
-                                h +
-                                    400 +
-                                    (props.customTracks &&
-                                    props.customTracks!!.length > 0
-                                        ? props.customTracks!!.length * 50
-                                        : 0)
-                            );
-                        }}
-                        id="transcript_track"
-                        rowHeight={14}
-                        width={2000}
-                        domain={props.domain}
-                    />
-                </GraphQLTranscriptTrack>
+                </GraphQLTrackSet>
 
-                { props.customTracks && props.customTracks!!.length > 0 && (
+                {props.customTracks !== null && props.customTracks !== undefined && props.customTracks!!.length > 0 && (
                     <GraphQLTrackSet
                         tracks={props.customTracks!!.map((x) => x.track)}
                         endpoint={'https://ga.staging.wenglab.org/graphql'}
@@ -157,7 +155,14 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 key={'ct' + i}
                                 width={2000}
                                 height={50}
-                                id={'ct' + i}                               
+                                onHeightChanged={(h: number) => {
+                                    let ht = height
+                                    setHeight(
+                                        h + ht
+                                           )
+                                    
+                                }}
+                                id={'ct' + i}
                                 transform={'translate (0,0)'}
                                 title={track.title}
                                 color={track.color}
