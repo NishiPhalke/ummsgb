@@ -5,7 +5,7 @@ import { TrackType, deduceTrackType } from './deducetype';
 const CustomTrack: React.FC<CustomTrackProps> = (props) => {
     if (!props.data) {
         return (
-            <WrappedTrack width={props.width} height={props.height} noData>
+            <WrappedTrack width={props.width} height={props.height} noData loading>
                 <EmptyTrack {...(props || {})} />
             </WrappedTrack>
         );
@@ -17,12 +17,13 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
                     title={props.title}
                     width={props.width}
                     height={props.height}
-                    onHeightChanged={props.onHeightChanged}
                     transform={'translate (0,0)'}
                     id={props.id}
                     color={props.color}
                     domain={props.domain}
                     data={props.data}
+                    titleSize={12} 
+                    trackMargin={12}
                 />
             );
         default:

@@ -33,7 +33,7 @@ const tracks = (range: Domain) => [
 
 const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => (
     <Container style={{ width: "90%" }}>
-        <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain}>
+        <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>
             <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
                 <RulerTrack width={2000} height={50} {...(props || {})} />
             </WrappedTrack>

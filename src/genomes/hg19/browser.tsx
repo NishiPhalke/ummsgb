@@ -34,7 +34,7 @@ const tracks = (range: Domain) => [
 
 const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => (
     <Container style={{ width: "90%" }}>
-        <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain}>
+        <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>
             <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
                 <RulerTrack width={2000} height={50} {...(props || {})} />
             </WrappedTrack>
@@ -59,7 +59,7 @@ const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => (
             <GraphQLTrackSet
                 tracks={tracks(props.domain)}
                 transform={'translate (0,0)'}
-                id={'testbigwig'}
+                id={'hg19_tracks'}
                 width={2000}
                 endpoint={'https://ga.staging.wenglab.org/graphql'}
             >
@@ -132,9 +132,9 @@ const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => (
                     trackMargin={12}
                 />
             </GraphQLTrackSet>
-            { props.customTracks !== null && props.customTracks !== undefined && props.customTracks!!.length > 0 && (
+            { props.customTracks && props.customTracks!!.length > 0 && (
                 <GraphQLTrackSet
-                tracks={props.customTracks!.map(x => ({ ...x.track, chr1: props.domain.chromosome!, start: props.domain.start, end: props.domain.end }))}
+                    tracks={props.customTracks!.map(x => ({ ...x.track, chr1: props.domain.chromosome!, start: props.domain.start, end: props.domain.end }))}
                     endpoint={'https://ga.staging.wenglab.org/graphql'}
                     width={2000}
                     transform={'translate(0,0)'}
