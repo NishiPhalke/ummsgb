@@ -16,8 +16,8 @@ import { Container } from 'semantic-ui-react';
 
 const tracks = (range: Domain) => [dnasetrack(range), conservationtrack(range)];
 
-const Mm10Browser: React.FC<Mm10BrowserProps> = props => (
-    <Container style={{ width: "90%" }}>
+const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => (
+    <Container style={{ width: '90%' }}>
         <GenomeBrowser innerWidth={2000} width="100%" domain={props.domain} svgRef={props.svgRef}>
             <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
                 <RulerTrack width={2000} height={50} {...(props || {})} />
@@ -49,7 +49,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = props => (
                     titleSize={12}
                     trackMargin={12}
                 />
-            </GraphQLTrackSet>            
+            </GraphQLTrackSet>
             <GraphQLTranscriptTrack
                 domain={props.domain}
                 transform={'translate (0,0)'}
@@ -68,9 +68,14 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = props => (
                     domain={props.domain}
                 />
             </GraphQLTranscriptTrack>
-            { props.customTracks && props.customTracks!!.length > 0 && (
+            {props.customTracks && props.customTracks!!.length > 0 && (
                 <GraphQLTrackSet
-                    tracks={props.customTracks!.map(x => ({ ...x.track, chr1: props.domain.chromosome!, start: props.domain.start, end: props.domain.end }))}
+                    tracks={props.customTracks!.map((x) => ({
+                        ...x.track,
+                        chr1: props.domain.chromosome!,
+                        start: props.domain.start,
+                        end: props.domain.end,
+                    }))}
                     endpoint={'https://ga.staging.wenglab.org/graphql'}
                     width={2000}
                     transform={'translate(0,0)'}

@@ -10,6 +10,7 @@ import { UCSCControls } from 'umms-gb';
 import { Container, Dimmer, Loader, Button } from 'semantic-ui-react';
 import { AddTrackModal } from '../../components/customtrack';
 import { downloadSVG } from './utils';
+import SessionModal from './sessionmodal';
 
 const parseDomain = (domain: string) => ({
     chromosome: domain.split(':')[0],
@@ -18,16 +19,19 @@ const parseDomain = (domain: string) => ({
 });
 
 const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
-    const uploadFile: any = React.useRef();
-    const [domain, setDomain] = useState<Domain>({ chromosome: 'chr12', start: 53379291, end: 53416942 });
+    const uploadFile = React.useRef<HTMLInputElement>(null);
+    const [domain, setDomain] = useState<Domain>(
+        (props.session && props.session.domain) || { chromosome: 'chr12', start: 53379291, end: 53416942 }
+    );
     const [assemblyInfo, setAssemblyInfoData] = useState<AssemblyInfo | null>(null);
     const [chromLength, setChromLength] = useState<number>(0);
-    const [modalShown, setModalShown] = useState<boolean>(false);
+    const [addTrackModalShown, setAddTrackModalShown] = useState<boolean>(false);
+    const [saveSessionModalShown, setSaveSessionModalShown] = useState<boolean>(false);
+    const [sessionData, setSessionData] = useState<string>();
 
-    const [customTracks, setCustomTracks] = useState<
-        | undefined
-        | customTrack[]
-    >();
+    const [customTracks, setCustomTracks] = useState<undefined | customTrack[]>(
+        props.session && props.session.customTracks
+    );
 
     useEffect(() => {
         const fetchData = async () => {
@@ -58,6 +62,16 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         };
         fetchChromLength();
     }, [props.assembly, domain]);
+
+    const saveSession = () => {
+        const sessionDetails = JSON.stringify({
+            customTracks: customTracks,
+            domain: domain,
+        });
+        const location = window.location.protocol + '//' + window.location.host + window.location.pathname;
+        setSessionData(location + '?session=' + encodeURIComponent(Buffer.from(sessionDetails).toString('base64')));
+        setSaveSessionModalShown(true);
+    };
 
     const onDomainChanged = React.useCallback(
         (d: Domain) => {
@@ -107,16 +121,16 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                   ];
         setCustomTracks(tracks);
 
-        setModalShown(false);
+        setAddTrackModalShown(false);
     };
     const trackListReceived = (e: React.ChangeEvent<HTMLInputElement>) => {
         const reader = new FileReader();
-        reader.onload = (e: any) => {            
-                const tracks: customTrack[]  = JSON.parse(e.target.result)
-                setCustomTracks(customTracks?[ ...customTracks, ...tracks ] : [...tracks])            
+        reader.onload = (e: any) => {
+            const tracks: customTrack[] = JSON.parse(e.target.result);
+            setCustomTracks(customTracks ? [...customTracks, ...tracks] : [...tracks]);
         };
         e.target.files && reader.readAsText(e.target.files[0]);
-    }
+    };
 
     const svg = useRef<SVGSVGElement>(null);
     const download = downloadSVG(svg, 'tracks.svg');
@@ -179,16 +193,26 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         svgRef={svg}
                     />
                     <AddTrackModal
-                        onOpen={() => setModalShown(true)}
+                        onOpen={() => setAddTrackModalShown(true)}
                         onAccept={onModalAccept}
-                        open={modalShown}
+                        open={addTrackModalShown}
                         endpoint={'https://ga.staging.wenglab.org/graphql'}
                         domain={domain}
                     />
                     &nbsp;
                     <Button onClick={download}>{'Download'} </Button>
-                    <Button onClick={() => uploadFile && uploadFile.current && uploadFile.current!!.click()}>Upload Track List</Button>
-                    <input name={'file'} type={'file'} ref={uploadFile} hidden  onChange={trackListReceived}/>
+                    <Button onClick={saveSession}>{'Save Session'} </Button>
+                    <Button onClick={() => uploadFile && uploadFile.current && uploadFile.current!!.click()}>
+                        Upload Track List
+                    </Button>
+                    <input name={'file'} type={'file'} ref={uploadFile} hidden onChange={trackListReceived} />
+                    <div style={{ height: '40px' }} />
+                    <SessionModal
+                        open={saveSessionModalShown}
+                        data={sessionData!!}
+                        onClose={() => setSaveSessionModalShown(false)}
+                        warn={0}
+                    />
                 </>
             </div>
         </>

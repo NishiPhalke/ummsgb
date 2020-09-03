@@ -22,7 +22,7 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
                     color={props.color}
                     domain={props.domain}
                     data={props.data}
-                    titleSize={12} 
+                    titleSize={12}
                     trackMargin={12}
                 />
             );
