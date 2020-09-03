@@ -127,7 +127,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                 </Container>
             </React.Fragment>
         );
-    let BrowserComponent = genomeConfig[props.assembly].browser;
+    const BrowserComponent = genomeConfig[props.assembly].browser;
     return (
         <>
             <GenomePageMenu />
