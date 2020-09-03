@@ -1,4 +1,4 @@
-import { GenomeBrowserPageProps, AssemblyInfo } from './types';
+import { GenomeBrowserPageProps, AssemblyInfo, customTrack } from './types';
 import { genomeConfig } from '../genomes';
 import React, { useState, useEffect, useRef } from 'react';
 import GenomePageMenu from './menu';
@@ -18,6 +18,7 @@ const parseDomain = (domain: string) => ({
 });
 
 const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
+    const uploadFile: any = React.useRef();
     const [domain, setDomain] = useState<Domain>({ chromosome: 'chr12', start: 53379291, end: 53416942 });
     const [assemblyInfo, setAssemblyInfoData] = useState<AssemblyInfo | null>(null);
     const [chromLength, setChromLength] = useState<number>(0);
@@ -25,11 +26,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
     const [customTracks, setCustomTracks] = useState<
         | undefined
-        | {
-              title: string;
-              color: string;
-              track: { start: number; end: number; chr1: string; url: string; preRenderedWidth: number };
-          }[]
+        | customTrack[]
     >();
 
     useEffect(() => {
@@ -112,8 +109,17 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
         setModalShown(false);
     };
-    const svg = useRef<any>(null);
-    const download = downloadSVG(svg, 'logo.svg');
+    const trackListReceived = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {            
+                const tracks: customTrack[]  = JSON.parse(e.target.result)
+                setCustomTracks(customTracks?[ ...customTracks, ...tracks ] : [...tracks])            
+        };
+        e.target.files && reader.readAsText(e.target.files[0]);
+    }
+
+    const svg = useRef<SVGSVGElement>(null);
+    const download = downloadSVG(svg, 'tracks.svg');
     if (props.assembly !== 'hg38' && props.assembly !== 'hg19' && props.assembly !== 'mm10')
         return <>{'Page under Construction'}</>;
     if (!assemblyInfo || !domain || !chromLength)
@@ -181,6 +187,8 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                     />
                     &nbsp;
                     <Button onClick={download}>{'Download'} </Button>
+                    <Button onClick={() => uploadFile && uploadFile.current && uploadFile.current!!.click()}>Upload Track List</Button>
+                    <input name={'file'} type={'file'} ref={uploadFile} hidden  onChange={trackListReceived}/>
                 </>
             </div>
         </>
