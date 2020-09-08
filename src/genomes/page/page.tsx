@@ -11,6 +11,7 @@ import { Container, Dimmer, Loader, Button } from 'semantic-ui-react';
 import { AddTrackModal } from '../../components/customtrack';
 import { downloadSVG } from './utils';
 import SessionModal from './sessionmodal';
+import MetadataModal from './metadatamodal';
 
 const parseDomain = (domain: string) => ({
     chromosome: domain.split(':')[0],
@@ -27,6 +28,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const [chromLength, setChromLength] = useState<number>(0);
     const [addTrackModalShown, setAddTrackModalShown] = useState<boolean>(false);
     const [saveSessionModalShown, setSaveSessionModalShown] = useState<boolean>(false);
+    const [metadataModalShown, setMetadataModalShown] = useState<boolean>(false);
     const [sessionData, setSessionData] = useState<string>();
 
     const [customTracks, setCustomTracks] = useState<undefined | customTrack[]>(
@@ -87,39 +89,38 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         },
         [domain.chromosome, chromLength]
     );
-    const onModalAccept = (modalstate: { title: string; url: string; color: string; domain: Domain } | null) => {
+    const onModalAccept = (modalState: { title: string; url: string; color: string; domain: Domain }[] | undefined) => {
         let tracks =
-            modalstate === null
-                ? customTracks
-                : customTracks !== undefined
-                ? [
-                      ...customTracks!!,
-                      {
-                          title: modalstate.title,
-                          color: modalstate.color,
-                          track: {
-                              start: modalstate.domain.start,
-                              end: modalstate.domain.end,
-                              chr1: modalstate.domain.chromosome!!,
-                              url: modalstate.url,
-                              preRenderedWidth: 1850,
-                          },
-                      },
-                  ]
-                : [
-                      {
-                          title: modalstate.title,
-                          color: modalstate.color,
-                          track: {
-                              start: modalstate.domain.start,
-                              end: modalstate.domain.end,
-                              chr1: modalstate.domain.chromosome!!,
-                              url: modalstate.url,
-                              preRenderedWidth: 1850,
-                          },
-                      },
-                  ];
-        setCustomTracks(tracks);
+            modalState &&
+            modalState.map((m: { title: string; url: string; color: string; domain: Domain }) => {
+                return {
+                    title: m.title,
+                    color: m.color,
+                    track: {
+                        start: m.domain.start,
+                        end: m.domain.end,
+                        chr1: m.domain.chromosome!!,
+                        url: m.url,
+                        preRenderedWidth: 1850,
+                    },
+                };
+            });
+
+        let cTracks =
+            customTracks !== undefined
+                ? tracks
+                    ? [
+                          ...customTracks!!,
+                          ...tracks!!.filter(
+                              (t) => customTracks!!.find((ct) => ct.track.url === t.track.url) === undefined
+                          ),
+                      ]
+                    : customTracks
+                : tracks
+                ? tracks
+                : undefined;
+
+        setCustomTracks(cTracks);
 
         setAddTrackModalShown(false);
     };
@@ -148,6 +149,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
             </React.Fragment>
         );
     const BrowserComponent = genomeConfig[props.assembly].browser;
+
     return (
         <>
             <GenomePageMenu />
@@ -192,11 +194,22 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         customTracks={customTracks}
                         svgRef={svg}
                     />
+                    <br />
                     <AddTrackModal
                         onOpen={() => setAddTrackModalShown(true)}
                         onAccept={onModalAccept}
+                        onClose={() => setAddTrackModalShown(false)}
                         open={addTrackModalShown}
                         endpoint={'https://ga.staging.wenglab.org/graphql'}
+                        domain={domain}
+                    />
+                    &nbsp;
+                    <MetadataModal
+                        open={metadataModalShown}
+                        onOpen={() => setMetadataModalShown(true)}
+                        onAccept={onModalAccept}
+                        onClose={() => setMetadataModalShown(false)}
+                        assembly={props.assembly === 'hg38' ? 'GRCh38' : props.assembly}
                         domain={domain}
                     />
                     &nbsp;

@@ -12,7 +12,7 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
     const [testing, setTesting] = useState<boolean>(false);
     const onAccept = () => {
         if (url.startsWith('gs://')) {
-            props.onAccept && props.onAccept({ url, domain: props.domain, color, title });
+            props.onAccept && props.onAccept([{ url, domain: props.domain, color, title }]);
             return;
         }
         setTesting(true);
@@ -36,10 +36,9 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
             .then(() => {
                 setError('');
                 setTesting(false);
-                props.onAccept && props.onAccept({ url, domain: props.domain, color, title });
+                props.onAccept && props.onAccept([{ url, domain: props.domain, color, title }]);
             })
             .catch((e) => {
-                console.log('catch', e);
                 setError(url);
                 setTesting(false);
             });
@@ -77,7 +76,7 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
                                     <Button basic color="green" onClick={() => onAccept()}>
                                         OK
                                     </Button>
-                                    <Button basic color="red" onClick={() => props.onAccept(null)}>
+                                    <Button basic color="red" onClick={() => props.onClose()}>
                                         Cancel
                                     </Button>
                                 </div>
