@@ -15,7 +15,7 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
 
         if (gene === undefined) return;
         props.onSearchSubmit && props.onSearchSubmit(gene.description.split('\n')[1]);
-    }, [searchVal, results, props]);
+    }, [searchVal, results, selectedsearchVal, props]);
     const onSearchChange = useCallback(
         async (e, { value }) => {
             const response = await fetch('https:/ga.staging.wenglab.org/graphql', {
