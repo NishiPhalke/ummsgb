@@ -14,7 +14,7 @@
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^1.2.0",
     "typescript": "^3.9.7",
-    "umms-gb": "^2.0.14",
+    "umms-gb": "^2.0.15",
     "gbmetadata": "^1.0.5"
   },
   "devDependencies": {
