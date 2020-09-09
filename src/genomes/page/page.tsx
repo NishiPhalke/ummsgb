@@ -1,9 +1,8 @@
-import { GenomeBrowserPageProps, AssemblyInfo, customTrack } from './types';
+import { GenomeBrowserPageProps, AssemblyInfo, customTrack, Domain } from './types';
 import { genomeConfig } from '../genomes';
 import React, { useState, useEffect, useRef } from 'react';
 import GenomePageMenu from './menu';
-import { ASSEMBLY_INFO_QUERY, CHROM_LENGTHS_QUERY } from './queries';
-import { Domain } from './../hg38/types';
+import { ASSEMBLY_INFO_QUERY, CHROM_LENGTHS_QUERY, SINGLE_TRANSCRIPT_QUERY } from './queries';
 import { SearchBox } from '../../components/search';
 import { Cytobands } from '../../components/cytobands';
 import { UCSCControls } from 'umms-gb';
@@ -12,6 +11,8 @@ import { AddTrackModal } from '../../components/customtrack';
 import { downloadSVG } from './utils';
 import SessionModal from './sessionmodal';
 import MetadataModal from './metadatamodal';
+import DefaultBrowser from './../default/default';
+import { RefSeqSearchBox } from './../../components/search';
 
 const parseDomain = (domain: string) => ({
     chromosome: domain.split(':')[0],
@@ -20,9 +21,9 @@ const parseDomain = (domain: string) => ({
 });
 
 const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
-    const uploadFile = React.useRef<HTMLInputElement>(null);
-    const [domain, setDomain] = useState<Domain>(
-        (props.session && props.session.domain) || { chromosome: 'chr12', start: 53379291, end: 53416942 }
+    const uploadTrackList = React.useRef<HTMLInputElement>(null);
+    const [domain, setDomain] = useState<Domain | undefined>(
+        (props.session && props.session.domain) 
     );
     const [assemblyInfo, setAssemblyInfoData] = useState<AssemblyInfo | null>(null);
     const [chromLength, setChromLength] = useState<number>(0);
@@ -30,10 +31,12 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const [saveSessionModalShown, setSaveSessionModalShown] = useState<boolean>(false);
     const [metadataModalShown, setMetadataModalShown] = useState<boolean>(false);
     const [sessionData, setSessionData] = useState<string>();
+    const [transcriptCoordinates, setTranscriptCoordinates] = useState<{coordinates :{chromosome: string, start: number, end: number}}>();
 
     const [customTracks, setCustomTracks] = useState<undefined | customTrack[]>(
         props.session && props.session.customTracks
     );
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,22 +52,68 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         };
         fetchData();
     }, [props.assembly]);
-
     useEffect(() => {
-        const fetchChromLength = async () => {
+        const getSingleTranscriptCoordinates = async () =>{
+            const response = await fetch('http://35.201.115.1/graphql', {
+                method: 'POST',
+                body: JSON.stringify({
+                    query: SINGLE_TRANSCRIPT_QUERY,
+                    variables: { assembly: props.assembly, limit: 1 },
+                }),
+                headers: { 'Content-Type': 'application/json' },
+            });
+            let data = (await response.json()).data
+            let genes = data?.refseqgenes && data?.refseqgenes.length ? data?.refseqgenes : data?.refseqxenogenes;
+            if (!genes || !genes.length || !genes[0].transcripts || !genes[0].transcripts) 
+            {
+                setTranscriptCoordinates(undefined);
+            }
+            setTranscriptCoordinates(genes[0].transcripts[0]);
+        }
+        if(!genomeConfig[props.assembly])
+        {
+            getSingleTranscriptCoordinates()
+        }
+    },[props.assembly])
+    useEffect(()=>{
+        if ((!genomeConfig[props.assembly] || !genomeConfig[props.assembly].domain) && chromLength) {
+            if(transcriptCoordinates)
+            {               
+                let genelength =  (transcriptCoordinates.coordinates.end - transcriptCoordinates.coordinates.start);                    
+                setDomain({
+                    chromosome: transcriptCoordinates.coordinates.chromosome,
+                    start: Math.floor(transcriptCoordinates.coordinates.start - genelength / 2)  < 0 ? 0 : Math.floor(transcriptCoordinates.coordinates.start - genelength / 2),
+                    end: Math.ceil(transcriptCoordinates.coordinates.end + genelength / 2) > chromLength ? chromLength :  Math.ceil(transcriptCoordinates.coordinates.end + genelength / 2)
+                });     
+            }
+        }
+    },[transcriptCoordinates, chromLength, props.assembly])    
+
+    useEffect(()=>{      
+        const fetchChromLength = async (d: Domain) => {            
             const response = await fetch('http://35.201.115.1/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
                     query: CHROM_LENGTHS_QUERY,
-                    variables: { assembly: props.assembly, chromosome: domain.chromosome },
+                    variables: { assembly: props.assembly, chromosome: d!!.chromosome },
                 }),
                 headers: { 'Content-Type': 'application/json' },
             });
-            setChromLength((await response.json()).data?.chromlengths[0].length || null);
+            let chrLength = (await response.json()).data?.chromlengths[0]?.length || 0 
+            setChromLength(chrLength);
+            
+            setDomain({
+                chromosome: d.chromosome,
+                start: d.start < 0 ? 0 : d.start,
+                end: d.end > chrLength ? chrLength : d.end,
+            });
         };
-        fetchChromLength();
-    }, [props.assembly, domain]);
+        let d = (props.session && props.session.domain) || (genomeConfig[props.assembly] ? genomeConfig[props.assembly].domain  : transcriptCoordinates && {  chromosome: transcriptCoordinates.coordinates.chromosome,
+            start: transcriptCoordinates.coordinates.start,
+            end: transcriptCoordinates.coordinates.end}) ;
+        if(d) fetchChromLength(d);
 
+    },[props.assembly, transcriptCoordinates, props.session])
     const saveSession = () => {
         const sessionDetails = JSON.stringify({
             customTracks: customTracks,
@@ -77,17 +126,17 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
     const onDomainChanged = React.useCallback(
         (d: Domain) => {
-            if (d.chromosome && d.chromosome !== domain.chromosome) {
+            if (d.chromosome && d.chromosome !== domain!!.chromosome) {
                 setDomain({
                     chromosome: d.chromosome,
                     start: d.start < 0 ? 0 : d.start,
                     end: d.end > chromLength ? chromLength : d.end,
                 });
             } else {
-                setDomain({ chromosome: domain.chromosome, ...d });
+                setDomain({ chromosome: domain!!.chromosome, ...d });
             }
         },
-        [domain.chromosome, chromLength]
+        [ domain, chromLength]
     );
     const onModalAccept = (modalState: { title: string; url: string; color: string; domain: Domain }[] | undefined) => {
         let tracks =
@@ -135,21 +184,20 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
     const svg = useRef<SVGSVGElement>(null);
     const download = downloadSVG(svg, 'tracks.svg');
-    if (props.assembly !== 'hg38' && props.assembly !== 'hg19' && props.assembly !== 'mm10')
-        return <>{'Page under Construction'}</>;
-    if (!assemblyInfo || !domain || !chromLength)
+   
+    if (!assemblyInfo || !domain || !chromLength )
         return (
-            <React.Fragment>
+            <>
                 <GenomePageMenu />
                 <Container>
                     <Dimmer active>
                         <Loader>Loading...</Loader>
                     </Dimmer>
                 </Container>
-            </React.Fragment>
+            </>
         );
-    const BrowserComponent = genomeConfig[props.assembly].browser;
-
+    const BrowserComponent =  (genomeConfig[props.assembly] && genomeConfig[props.assembly].browser) || DefaultBrowser;
+    let SearchBoxComponent = genomeConfig[props.assembly] ? SearchBox : RefSeqSearchBox;
     return (
         <>
             <GenomePageMenu />
@@ -162,7 +210,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                     <UCSCControls onDomainChanged={onDomainChanged} domain={domain} withInput={false} />
                     <br />
                     <div style={{ width: '75%', margin: '0 auto' }}>
-                        <SearchBox
+                        <SearchBoxComponent
                             onSearchSubmit={(domain: string) => onDomainChanged(parseDomain(domain))}
                             assembly={props.assembly === 'hg38' ? 'GRCh38' : props.assembly}
                         />
@@ -204,21 +252,21 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         domain={domain}
                     />
                     &nbsp;
-                    <MetadataModal
+                    {(props.assembly === 'hg38' || props.assembly === 'hg19' || props.assembly === 'mm10') && <MetadataModal
                         open={metadataModalShown}
                         onOpen={() => setMetadataModalShown(true)}
                         onAccept={onModalAccept}
                         onClose={() => setMetadataModalShown(false)}
                         assembly={props.assembly === 'hg38' ? 'GRCh38' : props.assembly}
                         domain={domain}
-                    />
+                    />}
                     &nbsp;
                     <Button onClick={download}>{'Download'} </Button>
                     <Button onClick={saveSession}>{'Save Session'} </Button>
-                    <Button onClick={() => uploadFile && uploadFile.current && uploadFile.current!!.click()}>
+                    <Button onClick={() => uploadTrackList && uploadTrackList.current && uploadTrackList.current!!.click()}>
                         Upload Track List
                     </Button>
-                    <input name={'file'} type={'file'} ref={uploadFile} hidden onChange={trackListReceived} />
+                    <input name={'file'} type={'file'} ref={uploadTrackList} hidden onChange={trackListReceived} />                   
                     <div style={{ height: '40px' }} />
                     <SessionModal
                         open={saveSessionModalShown}

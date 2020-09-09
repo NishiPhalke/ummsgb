@@ -1,17 +1,17 @@
 import { Hg38Browser } from './hg38';
 import { Hg19Browser } from './hg19';
-import Mm10Browser from './mm10/browser';
-export const genomeConfig = {
+import { Mm10Browser } from './mm10';
+export const genomeConfig: any = {
     hg38: {
         browser: Hg38Browser,
-        domain: { chr1: 'chr12', start: 53379291, end: 53416942 },
+        domain: { chromosome: 'chr12', start: 53379291, end: 53416942 },
     },
     hg19: {
         browser: Hg19Browser,
-        domain: { chr1: 'chr12', start: 53379291, end: 53416942 },
+        domain: { chromosome: "chr12", start: 53772979, end: 53810726 }
     },
     mm10: {
         browser: Mm10Browser,
-        domain: { chr1: 'chr12', start: 53379291, end: 53416942 },
+        domain: { chromosome: "chr7", start: 19695109, end: 19699688 }
     },
 };

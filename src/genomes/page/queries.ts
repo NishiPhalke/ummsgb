@@ -16,3 +16,27 @@ query Annotations($assembly: String!, $chromosome: String) {
   }
 }
 `;
+
+
+export const SINGLE_TRANSCRIPT_QUERY = `
+  query Gene($assembly: String!, $limit: Int) {
+    refseqgenes(assembly: $assembly, limit: $limit) {
+      transcripts {
+        coordinates {
+          chromosome,
+          start,
+          end
+        }
+      }
+    },
+    refseqxenogenes(assembly: $assembly, limit: $limit) {
+      transcripts {
+        coordinates {
+          chromosome,
+          start,
+          end
+        }
+      }
+    }
+  }
+`;

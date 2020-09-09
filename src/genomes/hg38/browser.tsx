@@ -1,4 +1,4 @@
-import { Hg38BrowserProps } from './types';
+import { Hg38BrowserProps, Domain } from './types';
 import React from 'react';
 import {
     RulerTrack,
@@ -18,7 +18,6 @@ import {
     rampageplus,
     rampageminus,
 } from './tracks';
-import { Domain } from './types';
 import { CustomTrack } from '../../components/customtrack';
 import { Container } from 'semantic-ui-react';
 const tracks = (range: Domain) => [
