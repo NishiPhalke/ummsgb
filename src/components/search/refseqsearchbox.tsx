@@ -42,9 +42,7 @@ const RefSeqSearchBox: React.FC<RefSeqSearchBoxProps> = (props) => {
                 '-' +
                 result.coordinates.end,
             }));
-            if(!sresults.length) {
-                setSelectedGene({ description: value })
-            }            
+            setSelectedGene({ description: value })
             setResults(sresults.length ? sresults : [{ title: value, description: "" }])
         },
         [props.assembly]
