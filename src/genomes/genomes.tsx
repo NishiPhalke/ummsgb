@@ -1,7 +1,7 @@
 import { Hg38Browser } from './hg38';
 import { Hg19Browser } from './hg19';
 import { Mm10Browser } from './mm10';
-export const genomeConfig: any = {
+export const genomeConfig: Record<string,{browser: any, domain : { chromosome: string, start: number, end: number }}> = {
     hg38: {
         browser: Hg38Browser,
         domain: { chromosome: 'chr12', start: 53379291, end: 53416942 },
