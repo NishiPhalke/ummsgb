@@ -7,7 +7,6 @@ import { RefSeqSearchBoxProps, Result } from './types';
 const RefSeqSearchBox: React.FC<RefSeqSearchBoxProps> = (props) => {
     const [selectedGene, setSelectedGene] = useState<Result | undefined>();
     const [results, setResults] = useState<Result[]>();
-    
 
     const onSubmit = useCallback(() => {
         if (selectedGene && isCoordinate(selectedGene.description))
@@ -17,7 +16,7 @@ const RefSeqSearchBox: React.FC<RefSeqSearchBoxProps> = (props) => {
         let g = (selectedGene && selectedGene.description) ? selectedGene.description :  results && results[0].description;
         if (g === undefined) return;      
         props.onSearchSubmit && props.onSearchSubmit(g);
-    }, [results, selectedGene, props]);
+    }, [results, props, selectedGene]);
     const onSearchChange = useCallback(
         async (e, { value }) => {
             const response = await fetch('http://35.201.115.1/graphql', {
@@ -43,9 +42,7 @@ const RefSeqSearchBox: React.FC<RefSeqSearchBoxProps> = (props) => {
                 '-' +
                 result.coordinates.end,
             }));
-            
             setSelectedGene({ description: value })
-                        
             setResults(sresults.length ? sresults : [{ title: value, description: "" }])
         },
         [props.assembly]
