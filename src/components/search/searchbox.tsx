@@ -2,15 +2,16 @@ import React, { useState, useCallback } from 'react';
 import { Form, Search } from 'semantic-ui-react';
 import { GENE_AUTOCOMPLETE_QUERY } from './queries';
 import { uniq, isCoordinate } from './utils';
-import { SearchBoxProps } from './types';
+import { SearchBoxProps, Result } from './types';
 
 const SearchBox: React.FC<SearchBoxProps> = (props) => {
-    const [searchVal, setSearchVal] = useState<any | undefined>();
-    const [results, setResults] = useState<any>();
+    const [searchVal, setSearchVal] = useState<string | undefined>();
+    const [selectedsearchVal, setSelectedsearchVal] = useState<Result | undefined>();
+    const [results, setResults] = useState<Result[]>();
 
     const onSubmit = useCallback(() => {
-        if (isCoordinate(searchVal)) props.onSearchSubmit && props.onSearchSubmit(searchVal);
-        let gene = searchVal && searchVal.description ? searchVal : results[0];
+        if (searchVal && isCoordinate(searchVal)) props.onSearchSubmit && props.onSearchSubmit(searchVal);
+        let gene = selectedsearchVal  ? selectedsearchVal : results && results[0];
 
         if (gene === undefined) return;
         props.onSearchSubmit && props.onSearchSubmit(gene.description.split('\n')[1]);
@@ -26,27 +27,26 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
                 headers: { 'Content-Type': 'application/json' },
             });
             setSearchVal(value);
-            setResults(
-                uniq(
-                    (await response.json()).data?.gene.map((result: any) => ({
-                        title: result.name,
-                        description:
-                            result.id +
-                            '\n' +
-                            result.coordinates.chromosome +
-                            ':' +
-                            result.coordinates.start +
-                            '-' +
-                            result.coordinates.end,
-                    })),
-                    value
-                )
-            );
+            let res: Result[] =  uniq(
+                (await response.json()).data?.gene.map((result: any) => ({
+                    title: result.name,
+                    description:
+                        result.id +
+                        '\n' +
+                        result.coordinates.chromosome +
+                        ':' +
+                        result.coordinates.start +
+                        '-' +
+                        result.coordinates.end,
+                })),
+                value
+            ) 
+            setResults(res);
         },
         [props.assembly]
     );
     const onResultSelect = useCallback((e, d) => {
-        setSearchVal(d.result);
+        setSelectedsearchVal(d.result);
     }, []);
     return (
         <>

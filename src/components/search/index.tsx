@@ -1,3 +1,4 @@
 import SearchBox from './searchbox';
+import RefSeqSearchBox from './refseqsearchbox';
 
-export { SearchBox };
+export { SearchBox, RefSeqSearchBox };
