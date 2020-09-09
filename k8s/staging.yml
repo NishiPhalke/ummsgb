@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gb-app-deployment
+  labels:
+    app: gb-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gb-app
+  template:
+    metadata:
+      labels:
+        app: gb-app
+    spec:
+      containers:
+      - name: gb-app
+        image: gcr.io/devenv-215523/umms-gb
+        env:
+        - name: ENVIRONMENT
+          value: staging
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gb-app-service
+  labels:
+    app: gb-app
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: gb-app
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: gb-app-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "staging-gb-app-external-ip"
+    cert-manager.io/cluster-issuer: letsencrypt    
+    cert-manager.io/issue-temporary-certificate: "true"
+spec:
+  backend:
+    serviceName: gb-app-service
+    servicePort: 80
+  tls:
+  - secretName: gb-app-tls
+    hosts:
+    - gb.staging.wenglab.org
