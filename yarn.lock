@@ -9189,9 +9189,10 @@ typescript@^3.9.7:
   version "3.9.7"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
 
-umms-gb@^2.0.14:
-  version "2.0.14"
-  resolved "https://registry.yarnpkg.com/umms-gb/-/umms-gb-2.0.14.tgz#d1ade4c1a6cfafef9e454c528826cd909fcd0dc5"
+umms-gb@^2.0.15:
+  version "2.0.15"
+  resolved "https://registry.yarnpkg.com/umms-gb/-/umms-gb-2.0.15.tgz#89f9f3ecbdb6875131b7c4c8201333675c94a84a"
+  integrity sha512-1cJnzv17CBpRp4wVVY+A2RlcEWs2kBXrEpxjdHEhGvhK8Qx/O0Tjtk+FPwAVQhbZO+6nGNepElmKjI2aieV3uA==
   dependencies:
     "@types/uuid" "^8.0.0"
     bigwig-reader "^1.3.1"
