@@ -7,6 +7,8 @@ import {
     WrappedTrack,
     GraphQLTranscriptTrack,
     WrappedPackTranscriptTrack,
+    WrappedSquishBam,
+    BamTrack,
     GenomeBrowser,
 } from 'umms-gb';
 import { dnasetrack, conservationtrack } from './tracks';
@@ -16,86 +18,119 @@ import { Container } from 'semantic-ui-react';
 
 const tracks = (range: Domain) => [dnasetrack(range), conservationtrack(range)];
 
-const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => (
-    <Container style={{ width: '90%' }}>
-        <GenomeBrowser innerWidth={2000} width="100%" domain={props.domain} svgRef={props.svgRef}>
-            <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
-                <RulerTrack width={2000} height={50} {...(props || {})} />
-            </WrappedTrack>
-            <GraphQLTrackSet
-                tracks={tracks(props.domain)}
-                transform={'translate (0,0)'}
-                id={'mm10_tracks'}
-                width={2000}
-                endpoint={'https://ga.staging.wenglab.org/graphql'}
-            >
-                <WrappedFullBigWig
-                    title="Aggregated DNase-seq from ENCODE"
-                    width={2000}
-                    height={50}
-                    id="dnase"
-                    color="#06da93"
-                    domain={props.domain}
-                    titleSize={12}
-                    trackMargin={12}
-                />
-                <WrappedFullBigWig
-                    title="phyloP 100-way conservatio"
-                    width={2000}
-                    height={50}
-                    id="phyloP"
-                    color="#000088"
-                    domain={props.domain}
-                    titleSize={12}
-                    trackMargin={12}
-                />
-            </GraphQLTrackSet>
-            <GraphQLTranscriptTrack
-                domain={props.domain}
-                transform={'translate (0,0)'}
-                assembly={props.assembly}
-                endpoint={'https://ga.staging.wenglab.org/graphql'}
-                id="g"
-            >
-                <WrappedPackTranscriptTrack
-                    titleSize={12}
-                    trackMargin={12}
-                    title={'GENCODE v29 transcripts'}
-                    color="#8b0000"
-                    id="transcript"
-                    rowHeight={14}
-                    width={2000}
-                    domain={props.domain}
-                />
-            </GraphQLTranscriptTrack>
-            {props.customTracks && props.customTracks!!.length > 0 && (
+const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
+    let customTracks = props.customTracks?.filter((ct) => !ct.track.baiUrl);
+    let bamCustomTracks = props.customTracks?.filter((ct) => ct.track.baiUrl);
+    return (
+        <Container style={{ width: '90%' }}>
+            <GenomeBrowser innerWidth={2000} width="100%" domain={props.domain} svgRef={props.svgRef}>
+                <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
+                    <RulerTrack width={2000} height={50} {...(props || {})} />
+                </WrappedTrack>
                 <GraphQLTrackSet
-                    tracks={props.customTracks!.map((x) => ({
-                        ...x.track,
-                        chr1: props.domain.chromosome!,
-                        start: props.domain.start,
-                        end: props.domain.end,
-                    }))}
-                    endpoint={'https://ga.staging.wenglab.org/graphql'}
+                    tracks={tracks(props.domain)}
+                    transform={'translate (0,0)'}
+                    id={'mm10_tracks'}
                     width={2000}
-                    transform={'translate(0,0)'}
-                    id={`customtrack,${props.customTracks!.map((x, i) => i).join(',')}`}
+                    endpoint={'https://ga.staging.wenglab.org/graphql'}
                 >
-                    {props.customTracks!!.map((track, i) => (
-                        <CustomTrack
-                            key={`ct${i}`}
-                            width={2000}
-                            height={50}
-                            id={`ct${i}`}
-                            transform={'translate(0,0)'}
-                            title={track.title}
-                            color={track.color}
-                            domain={props.domain}
-                        />
-                    ))}
+                    <WrappedFullBigWig
+                        title="Aggregated DNase-seq from ENCODE"
+                        width={2000}
+                        height={50}
+                        id="dnase"
+                        color="#06da93"
+                        domain={props.domain}
+                        titleSize={12}
+                        trackMargin={12}
+                    />
+                    <WrappedFullBigWig
+                        title="phyloP 100-way conservatio"
+                        width={2000}
+                        height={50}
+                        id="phyloP"
+                        color="#000088"
+                        domain={props.domain}
+                        titleSize={12}
+                        trackMargin={12}
+                    />
                 </GraphQLTrackSet>
-            )}
-        </GenomeBrowser>
-    </Container>
-);
+                <GraphQLTranscriptTrack
+                    domain={props.domain}
+                    transform={'translate (0,0)'}
+                    assembly={props.assembly}
+                    endpoint={'https://ga.staging.wenglab.org/graphql'}
+                    id="g"
+                >
+                    <WrappedPackTranscriptTrack
+                        titleSize={12}
+                        trackMargin={12}
+                        title={'GENCODE v29 transcripts'}
+                        color="#8b0000"
+                        id="transcript"
+                        rowHeight={14}
+                        width={2000}
+                        domain={props.domain}
+                    />
+                </GraphQLTranscriptTrack>
+                {customTracks && (
+                    <GraphQLTrackSet
+                        tracks={customTracks.map((x) => ({
+                            ...x.track,
+                            chr1: props.domain.chromosome!,
+                            start: props.domain.start,
+                            end: props.domain.end,
+                        }))}
+                        endpoint={'https://ga.staging.wenglab.org/graphql'}
+                        width={2000}
+                        transform={'translate(0,0)'}
+                        id={`customtrack,${customTracks.map((x, i) => i).join(',')}`}
+                    >
+                        {customTracks.map((track, i) => (
+                            <CustomTrack
+                                key={`ct${i}`}
+                                width={2000}
+                                height={50}
+                                id={`ct${i}`}
+                                transform={'translate(0,0)'}
+                                title={track.title}
+                                color={track.color}
+                                domain={props.domain}
+                            />
+                        ))}
+                    </GraphQLTrackSet>
+                )}
+                {bamCustomTracks?.map((bt) => {
+                    return (
+                        <BamTrack
+                            key={bt.track.url}
+                            transform={'translate (0 0)'}
+                            id="test_bamtrack"
+                            width={2000}
+                            track={{
+                                bamUrl: bt.track.url,
+                                baiUrl: bt.track.baiUrl!!,
+                                chr: props.domain.chromosome!!,
+                                start: props.domain.start,
+                                end: props.domain.end,
+                            }}
+                            endpoint={'https://ga.staging.wenglab.org'}
+                        >
+                            <WrappedSquishBam
+                                width={2000}
+                                titleSize={12}
+                                trackMargin={12}
+                                title={bt.title}
+                                color={bt.color}
+                                rowHeight={10}
+                                domain={{ start: props.domain.start, end: props.domain.end }}
+                                id="test_squishbam"
+                            />
+                        </BamTrack>
+                    );
+                })}
+            </GenomeBrowser>
+        </Container>
+    );
+};
 export default Mm10Browser;

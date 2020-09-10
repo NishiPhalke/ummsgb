@@ -8,7 +8,7 @@ import dna from '../../dna.png';
 import { Link } from 'react-router-dom';
 import ContentDivider from './../homepage/content/divider';
 const groupBySpecies = (assemblies: AssemblyInfo[]) => {
-    let retval: Record<string,AssemblyInfo[]> = {};
+    let retval: Record<string, AssemblyInfo[]> = {};
     assemblies.forEach((x: AssemblyInfo) => {
         if (!retval[x.species]) retval[x.species] = [];
         retval[x.species].push(x);
@@ -16,7 +16,7 @@ const groupBySpecies = (assemblies: AssemblyInfo[]) => {
     return retval;
 };
 const compareAssembly = (a: AssemblyInfo, b: AssemblyInfo) => +b.name.replace(/\D/g, '') - +a.name.replace(/\D/g, '');
-const groupHas = (group: any, q: string) => {    
+const groupHas = (group: any, q: string) => {
     if (q === '') return true;
     for (let i = 0; i < group.length; ++i)
         if (group[i].name.toLowerCase().includes(q) || group[i].description.toLowerCase().includes(q)) return true;
@@ -45,7 +45,7 @@ const GenomePage: React.FC = () => {
     }, []);
     let groupedAssemblies = assemblies && groupBySpecies(assemblies);
     let genomeAssemblies =
-        groupedAssemblies!==null &&
+        groupedAssemblies !== null &&
         Object.keys(groupedAssemblies)
             .sort()
             .filter((x) => q === '' || x.toLowerCase().includes(q) || groupHas(groupedAssemblies!![x], q));

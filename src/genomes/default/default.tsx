@@ -6,18 +6,17 @@ import {
     WrappedTrack,
     GenomeBrowser,
     WrappedPackTranscriptTrack,
-    GraphQLTranscriptTrack
+    GraphQLTranscriptTrack,
 } from 'umms-gb';
 import { CustomTrack } from '../../components/customtrack';
 import { Container } from 'semantic-ui-react';
-
 
 const DefaultBrowser: React.FC<DefaultProps> = (props) => (
     <Container style={{ width: '90%' }}>
         <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>
             <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
                 <RulerTrack width={2000} height={50} {...(props || {})} />
-            </WrappedTrack>        
+            </WrappedTrack>
             <GraphQLTranscriptTrack
                 domain={props.domain}
                 transform={'translate (0,0)'}
@@ -36,7 +35,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => (
                     width={2000}
                     domain={props.domain}
                 />
-            </GraphQLTranscriptTrack>  
+            </GraphQLTranscriptTrack>
             <GraphQLTranscriptTrack
                 domain={props.domain}
                 transform={'translate (0,0)'}
@@ -55,7 +54,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => (
                     width={2000}
                     domain={props.domain}
                 />
-            </GraphQLTranscriptTrack>  
+            </GraphQLTranscriptTrack>
             {props.customTracks && props.customTracks!.length > 0 && (
                 <GraphQLTrackSet
                     tracks={props.customTracks!.map((x) => ({

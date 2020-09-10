@@ -1,4 +1,4 @@
-import { Result, RefSeqGenes } from "./types";
+import { Result, RefSeqGenes } from './types';
 
 /**
  * Filters for unique search results, as non-unique results cause undefined
@@ -6,7 +6,7 @@ import { Result, RefSeqGenes } from "./types";
  *
  * @param results the list of results, each with a title field which distinguishes unique results.
  */
-export const uniq = (results: Result[], d: string) : Result[] => {
+export const uniq = (results: Result[], d: string): Result[] => {
     let r: Result[] = [];
     results.forEach((result: Result) => {
         let found = false;
@@ -31,19 +31,22 @@ export const isCoordinate = (value: string) => {
 
 export const refsequniq = (results: RefSeqGenes[]) => {
     results = results.filter((x: RefSeqGenes) => x.transcripts && x.transcripts.length);
-    let r: {name: string, coordinates: { chromosome: string, start: number, end: number}}[] = [];
+    let r: { name: string; coordinates: { chromosome: string; start: number; end: number } }[] = [];
     results.forEach((result: RefSeqGenes) => {
         if (r.length === 3) return;
         let found = false;
-        r.forEach(rr => { if (rr.name === result.id) found = true; });
-        if (!found) r.push({
-            name: result.id,
-            coordinates: {
-                chromosome: result.transcripts[0].coordinates.chromosome,
-                start: Math.min(...result.transcripts.map((x) => x.coordinates.start)),
-                end: Math.max(...result.transcripts.map((x: any) => x.coordinates.end))
-            }
+        r.forEach((rr) => {
+            if (rr.name === result.id) found = true;
         });
+        if (!found)
+            r.push({
+                name: result.id,
+                coordinates: {
+                    chromosome: result.transcripts[0].coordinates.chromosome,
+                    start: Math.min(...result.transcripts.map((x) => x.coordinates.start)),
+                    end: Math.max(...result.transcripts.map((x: any) => x.coordinates.end)),
+                },
+            });
     });
     return r;
 };

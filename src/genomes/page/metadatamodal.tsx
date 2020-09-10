@@ -18,7 +18,7 @@ const MetadataModal: React.FC<MetadataModalProps> = (props) => {
             });
         props.onAccept(urls ? tracks : undefined);
     };
-    const MenuItem: React.FC<{ page: string; title: string; onHover?: () => void }> = ({ page, title }) => (
+    const MenuItem: React.FC<{ page: string; title: string }> = ({ page, title }) => (
         <Menu.Item active={activePage!.toLowerCase() === page} onClick={() => setActivePage(page)}>
             {title}
         </Menu.Item>
@@ -52,6 +52,7 @@ const MetadataModal: React.FC<MetadataModalProps> = (props) => {
                             <div style={{ marginTop: '1rem' }}>{inner}</div>
                         </>
                     </Modal.Description>
+                    <br />
                     <Modal.Actions>
                         <div style={{ textAlign: 'right' }}>
                             <Button basic color="green" onClick={props.onClose}>

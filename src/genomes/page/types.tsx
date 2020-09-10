@@ -42,5 +42,5 @@ export type MetadataModalProps = {
 export type customTrack = {
     title: string;
     color: string;
-    track: { start: number; end: number; chr1: string; url: string; preRenderedWidth: number };
+    track: { start: number; end: number; chr1: string; url: string; baiUrl?: string; preRenderedWidth: number };
 };

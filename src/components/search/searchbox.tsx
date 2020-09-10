@@ -11,7 +11,7 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
 
     const onSubmit = useCallback(() => {
         if (searchVal && isCoordinate(searchVal)) props.onSearchSubmit && props.onSearchSubmit(searchVal);
-        let gene = selectedsearchVal  ? selectedsearchVal : results && results[0];
+        let gene = selectedsearchVal ? selectedsearchVal : results && results[0];
 
         if (gene === undefined) return;
         props.onSearchSubmit && props.onSearchSubmit(gene.description.split('\n')[1]);
@@ -27,20 +27,26 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
                 headers: { 'Content-Type': 'application/json' },
             });
             setSearchVal(value);
-            let res: Result[] =  uniq(
-                (await response.json()).data?.gene.map((result: { name: string, id: string, coordinates : { chromosome: string, start: number, end: number }}) => ({
-                    title: result.name,
-                    description:
-                        result.id +
-                        '\n' +
-                        result.coordinates.chromosome +
-                        ':' +
-                        result.coordinates.start +
-                        '-' +
-                        result.coordinates.end,
-                })),
+            let res: Result[] = uniq(
+                (await response.json()).data?.gene.map(
+                    (result: {
+                        name: string;
+                        id: string;
+                        coordinates: { chromosome: string; start: number; end: number };
+                    }) => ({
+                        title: result.name,
+                        description:
+                            result.id +
+                            '\n' +
+                            result.coordinates.chromosome +
+                            ':' +
+                            result.coordinates.start +
+                            '-' +
+                            result.coordinates.end,
+                    })
+                ),
                 value
-            ) 
+            );
             setResults(res);
         },
         [props.assembly]

@@ -9,12 +9,11 @@ const RefSeqSearchBox: React.FC<RefSeqSearchBoxProps> = (props) => {
     const [results, setResults] = useState<Result[]>();
 
     const onSubmit = useCallback(() => {
-        if (selectedGene && isCoordinate(selectedGene.description))
-        {
+        if (selectedGene && isCoordinate(selectedGene.description)) {
             props.onSearchSubmit && props.onSearchSubmit(selectedGene.description);
-        }                
-        let g = (selectedGene && selectedGene.description) ? selectedGene.description :  results && results[0].description;
-        if (g === undefined) return;      
+        }
+        let g = selectedGene && selectedGene.description ? selectedGene.description : results && results[0].description;
+        if (g === undefined) return;
         props.onSearchSubmit && props.onSearchSubmit(g);
     }, [results, props, selectedGene]);
     const onSearchChange = useCallback(
@@ -23,32 +22,28 @@ const RefSeqSearchBox: React.FC<RefSeqSearchBoxProps> = (props) => {
                 method: 'POST',
                 body: JSON.stringify({
                     query: REFSEQ_AUTOCOMPLETE_QUERY,
-                    variables: {  
+                    variables: {
                         searchTerm: value,
                         assembly: props.assembly,
-                        limit: 10 
+                        limit: 10,
                     },
                 }),
                 headers: { 'Content-Type': 'application/json' },
             });
-           
-           let d = (await response.json()).data
-           let sresults = refsequniq([ ...d?.refseqgenes, ...d?.refseqxenogenes ]).map(result => ({
+
+            let d = (await response.json()).data;
+            let sresults = refsequniq([...d?.refseqgenes, ...d?.refseqxenogenes]).map((result) => ({
                 title: result.name,
                 description:
-                result.coordinates.chromosome +
-                ':' +
-                result.coordinates.start +
-                '-' +
-                result.coordinates.end,
+                    result.coordinates.chromosome + ':' + result.coordinates.start + '-' + result.coordinates.end,
             }));
-            setSelectedGene({ description: value })
-            setResults(sresults.length ? sresults : [{ title: value, description: "" }])
+            setSelectedGene({ description: value });
+            setResults(sresults.length ? sresults : [{ title: value, description: '' }]);
         },
         [props.assembly]
     );
     const onResultSelect = useCallback((e, d) => {
-        setSelectedGene(d.result)
+        setSelectedGene(d.result);
     }, []);
     return (
         <>

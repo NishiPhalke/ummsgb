@@ -9,11 +9,9 @@ export type Mm10BrowserProps = {
     assembly: string;
     svgRef?: React.RefObject<SVGSVGElement>;
     onDomainChanged: (domain: Domain) => void;
-    customTracks?:
-        | null
-        | {
-              title: string;
-              color: string;
-              track: { start: number; end: number; chr1: string; url: string; preRenderedWidth: number };
-          }[];
+    customTracks?: {
+        title: string;
+        color: string;
+        track: { start: number; end: number; chr1: string; url: string; baiUrl?: string; preRenderedWidth: number };
+    }[];
 };

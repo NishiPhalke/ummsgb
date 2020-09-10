@@ -4,7 +4,7 @@ export type AddTrackProps = {
     open: boolean;
     endpoint: string;
     onClose: () => void;
-    onAccept: (modalState: { title: string; url: string; color: string; domain: Domain }[]) => void;
+    onAccept: (modalState: { title: string; url: string; baiUrl?: string; color: string; domain: Domain }[]) => void;
 };
 
 export interface Domain {

@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { AddTrackProps } from './types';
-import { Button, Modal, Message, Input } from 'semantic-ui-react';
+import { Button, Modal, Message, Input, Radio } from 'semantic-ui-react';
 import ColorPicker from './colorpicker';
 import { TEST_QUERY } from './queries';
 
 const AddTrack: React.FC<AddTrackProps> = (props) => {
     const [title, setTitle] = useState<string>('');
+    const [addBamTrack, setAddBamTrack] = useState<boolean>(false);
     const [url, setUrl] = useState<string>('');
+    const [baiUrl, setBaiUrl] = useState<string>();
     const [color, setColor] = useState<string>('');
     const [error, setError] = useState<string>('');
     const [testing, setTesting] = useState<boolean>(false);
     const onAccept = () => {
-        if (url.startsWith('gs://')) {
-            props.onAccept && props.onAccept([{ url, domain: props.domain, color, title }]);
+        if (url.startsWith('gs://') || baiUrl) {
+            props.onAccept && props.onAccept([{ url, domain: props.domain, baiUrl, color, title }]);
             return;
         }
         setTesting(true);
@@ -59,14 +61,32 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
                                         URL and try again.
                                     </Message>
                                 )}
+                                <Radio
+                                    label={'Add Bam Track'}
+                                    onChange={(_, data) => {
+                                        let val = data.checked as boolean;
+                                        setAddBamTrack(val);
+                                    }}
+                                    toggle
+                                />
+                                <br />
+                                <br />
                                 <strong>Track Title: </strong>&nbsp;
                                 <Input onChange={(e) => setTitle(e.target.value)} style={{ width: '90%' }} />
                                 <br />
                                 <br />
-                                <strong>Track URL: </strong>&nbsp;
+                                <strong>{addBamTrack ? 'Bam Track URL:' : 'Track URL:'}</strong>&nbsp;
                                 <Input onChange={(e) => setUrl(e.target.value)} style={{ width: '90%' }} />
                                 <br />
                                 <br />
+                                {addBamTrack && (
+                                    <>
+                                        <strong>{'Bam Index URL:'}</strong>&nbsp;
+                                        <Input onChange={(e) => setBaiUrl(e.target.value)} style={{ width: '90%' }} />
+                                        <br />
+                                        <br />
+                                    </>
+                                )}
                                 <ColorPicker color={color} onChangeComplete={(color) => setColor(color)} />
                                 <br />
                             </Modal.Description>
