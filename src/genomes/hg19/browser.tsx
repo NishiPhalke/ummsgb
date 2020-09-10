@@ -7,6 +7,7 @@ import {
     GraphQLTranscriptTrack,
     WrappedPackTranscriptTrack,
     BamTrack,
+    WrappedDenseBam,
     WrappedSquishBam,
     GenomeBrowser,
 } from 'umms-gb';
@@ -21,8 +22,9 @@ import {
     rampageplus,
     rampageminus,
 } from './tracks';
-import { Domain, Hg19BrowserProps } from './types';
+import { Hg19BrowserProps } from './types';
 import { CustomTrack } from '../../components/customtrack';
+import { Domain } from '../types';
 
 const tracks = (range: Domain) => [
     dnasetrack(range),
@@ -158,18 +160,19 @@ const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => {
                                 id={`ct${i}`}
                                 transform="translate(0,0)"
                                 title={track.title}
+                                displayMode={track.displayMode}
                                 color={track.color}
                                 domain={props.domain}
                             />
                         ))}
                     </GraphQLTrackSet>
                 )}
-                {bamCustomTracks?.map((bt) => {
+                {bamCustomTracks?.map((bt, i) => {
                     return (
                         <BamTrack
                             key={bt.track.url}
                             transform={'translate (0 0)'}
-                            id="test_bamtrack"
+                            id={i + '_bamtrack'}
                             width={2000}
                             track={{
                                 bamUrl: bt.track.url,
@@ -180,16 +183,29 @@ const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => {
                             }}
                             endpoint={'https://ga.staging.wenglab.org'}
                         >
-                            <WrappedSquishBam
-                                width={2000}
-                                titleSize={12}
-                                trackMargin={12}
-                                title={bt.title}
-                                color={bt.color}
-                                rowHeight={10}
-                                domain={{ start: props.domain.start, end: props.domain.end }}
-                                id="test_squishbam"
-                            />
+                            {bt.displayMode === 'dense' ? (
+                                <WrappedDenseBam
+                                    width={2000}
+                                    titleSize={12}
+                                    trackMargin={12}
+                                    title={bt.title}
+                                    color={bt.color}
+                                    height={50}
+                                    domain={{ start: props.domain.start, end: props.domain.end }}
+                                    id={i + '_densebam'}
+                                />
+                            ) : (
+                                <WrappedSquishBam
+                                    width={2000}
+                                    titleSize={12}
+                                    trackMargin={12}
+                                    title={bt.title}
+                                    color={bt.color}
+                                    rowHeight={10}
+                                    domain={{ start: props.domain.start, end: props.domain.end }}
+                                    id={i + '_squishbam'}
+                                />
+                            )}
                         </BamTrack>
                     );
                 })}

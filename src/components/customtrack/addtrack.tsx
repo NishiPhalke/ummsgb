@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { AddTrackProps } from './types';
-import { Button, Modal, Message, Input, Radio } from 'semantic-ui-react';
+import { Button, Modal, Message, Input, Radio, Dropdown } from 'semantic-ui-react';
 import ColorPicker from './colorpicker';
 import { TEST_QUERY } from './queries';
 
 const AddTrack: React.FC<AddTrackProps> = (props) => {
     const [title, setTitle] = useState<string>('');
+    const [displayMode, setDisplayMode] = useState<string>();
     const [addBamTrack, setAddBamTrack] = useState<boolean>(false);
     const [url, setUrl] = useState<string>('');
     const [baiUrl, setBaiUrl] = useState<string>();
@@ -14,7 +15,7 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
     const [testing, setTesting] = useState<boolean>(false);
     const onAccept = () => {
         if (url.startsWith('gs://') || baiUrl) {
-            props.onAccept && props.onAccept([{ url, domain: props.domain, baiUrl, color, title }]);
+            props.onAccept && props.onAccept([{ url, domain: props.domain, baiUrl, displayMode, color, title }]);
             return;
         }
         setTesting(true);
@@ -38,7 +39,7 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
             .then(() => {
                 setError('');
                 setTesting(false);
-                props.onAccept && props.onAccept([{ url, domain: props.domain, color, title }]);
+                props.onAccept && props.onAccept([{ url, domain: props.domain, displayMode, color, title }]);
             })
             .catch((e) => {
                 setError(url);
@@ -62,6 +63,7 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
                                     </Message>
                                 )}
                                 <Radio
+                                    checked={addBamTrack}
                                     label={'Add Bam Track'}
                                     onChange={(_, data) => {
                                         let val = data.checked as boolean;
@@ -87,6 +89,21 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
                                         <br />
                                     </>
                                 )}
+                                <strong>Display Mode:</strong>&nbsp;
+                                <Dropdown
+                                    placeholder="Select Display Mode"
+                                    selection
+                                    onChange={(_, data) => {
+                                        setDisplayMode(data.value as string);
+                                    }}
+                                    options={[
+                                        { key: 'dense', text: 'dense', value: 'dense' },
+                                        { key: 'squish', text: 'squish', value: 'squish' },
+                                        { key: 'full', text: 'full', value: 'full' },
+                                    ]}
+                                />
+                                <br />
+                                <br />
                                 <ColorPicker color={color} onChangeComplete={(color) => setColor(color)} />
                                 <br />
                             </Modal.Description>

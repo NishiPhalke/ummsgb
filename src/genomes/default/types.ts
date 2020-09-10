@@ -1,19 +1,10 @@
-export interface Domain {
-    chromosome?: string;
-    start: number;
-    end: number;
-}
+import { customTrack } from '../types';
+import { Domain } from '../types';
 
 export type DefaultProps = {
     domain: Domain;
     assembly: string;
     svgRef?: React.RefObject<SVGSVGElement>;
     onDomainChanged: (domain: Domain) => void;
-    customTracks?:
-        | null
-        | {
-              title: string;
-              color: string;
-              track: { start: number; end: number; chr1: string; url: string; preRenderedWidth: number };
-          }[];
+    customTracks?: customTrack[];
 };

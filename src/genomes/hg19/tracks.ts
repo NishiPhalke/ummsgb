@@ -5,7 +5,7 @@
  * GraphQL tracksets.
  */
 
-import { Domain } from './types';
+import { Domain } from '../types';
 
 /**
  * Creates a track object for requesting aggregated DNase signal for a given region.

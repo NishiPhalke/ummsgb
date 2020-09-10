@@ -11,10 +11,11 @@ const RefSeqSearchBox: React.FC<RefSeqSearchBoxProps> = (props) => {
     const onSubmit = useCallback(() => {
         if (selectedGene && isCoordinate(selectedGene.description)) {
             props.onSearchSubmit && props.onSearchSubmit(selectedGene.description);
+            return;
         }
         let g = selectedGene && selectedGene.description ? selectedGene.description : results && results[0].description;
         if (g === undefined) return;
-        props.onSearchSubmit && props.onSearchSubmit(g);
+        props.onSearchSubmit && isCoordinate(g) && props.onSearchSubmit(g);
     }, [results, props, selectedGene]);
     const onSearchChange = useCallback(
         async (e, { value }) => {

@@ -10,11 +10,15 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
     const [results, setResults] = useState<Result[]>();
 
     const onSubmit = useCallback(() => {
-        if (searchVal && isCoordinate(searchVal)) props.onSearchSubmit && props.onSearchSubmit(searchVal);
+        if (searchVal && isCoordinate(searchVal)) {
+            props.onSearchSubmit && props.onSearchSubmit(searchVal);
+            return;
+        }
         let gene = selectedsearchVal ? selectedsearchVal : results && results[0];
-
         if (gene === undefined) return;
-        props.onSearchSubmit && props.onSearchSubmit(gene.description.split('\n')[1]);
+        props.onSearchSubmit &&
+            isCoordinate(gene.description.split('\n')[1]) &&
+            props.onSearchSubmit(gene.description.split('\n')[1]);
     }, [searchVal, results, props, selectedsearchVal]);
     const onSearchChange = useCallback(
         async (e, { value }) => {

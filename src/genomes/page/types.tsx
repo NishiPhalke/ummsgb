@@ -1,8 +1,5 @@
-export interface Domain {
-    chromosome?: string;
-    start: number;
-    end: number;
-}
+import { customTrack, Domain } from '../types';
+
 export type GenomeBrowserPageProps = {
     assembly: string;
     session?: {
@@ -15,12 +12,6 @@ export type AssemblyInfo = { species: string; name: string; description: string 
 
 export type SessionModalProps = { open: boolean; data: string; onClose: () => void; warn: number };
 
-export interface Domain {
-    chromosome?: string;
-    start: number;
-    end: number;
-}
-
 export type MetadataModalProps = {
     open: boolean;
     onClose: () => void;
@@ -32,15 +23,11 @@ export type MetadataModalProps = {
             | {
                   title: string;
                   url: string;
+                  baiUrl?: string;
+                  displayMode?: string;
                   color: string;
                   domain: Domain;
               }[]
             | undefined
     ) => void;
-};
-
-export type customTrack = {
-    title: string;
-    color: string;
-    track: { start: number; end: number; chr1: string; url: string; baiUrl?: string; preRenderedWidth: number };
 };

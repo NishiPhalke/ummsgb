@@ -1,4 +1,5 @@
-import { GenomeBrowserPageProps, AssemblyInfo, customTrack, Domain } from './types';
+import { GenomeBrowserPageProps, AssemblyInfo } from './types';
+import { customTrack, Domain } from '../types';
 import { genomeConfig } from '../genomes';
 import React, { useState, useEffect, useRef } from 'react';
 import GenomePageMenu from './menu';
@@ -146,24 +147,36 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         [domain, chromLength]
     );
     const onModalAccept = (
-        modalState: { title: string; url: string; baiUrl?: string; color: string; domain: Domain }[] | undefined
+        modalState:
+            | { title: string; url: string; baiUrl?: string; displayMode?: string; color: string; domain: Domain }[]
+            | undefined
     ) => {
-        let tracks =
+        let tracks: customTrack[] | undefined =
             modalState &&
-            modalState.map((m: { title: string; url: string; baiUrl?: string; color: string; domain: Domain }) => {
-                return {
-                    title: m.title,
-                    color: m.color,
-                    track: {
-                        start: m.domain.start,
-                        end: m.domain.end,
-                        chr1: m.domain.chromosome!!,
-                        url: m.url,
-                        baiUrl: m.baiUrl,
-                        preRenderedWidth: 1850,
-                    },
-                };
-            });
+            modalState.map(
+                (m: {
+                    title: string;
+                    url: string;
+                    baiUrl?: string;
+                    displayMode?: string;
+                    color: string;
+                    domain: Domain;
+                }) => {
+                    return {
+                        title: m.title,
+                        color: m.color,
+                        displayMode: m.displayMode,
+                        track: {
+                            start: m.domain.start,
+                            end: m.domain.end,
+                            chr1: m.domain.chromosome!!,
+                            url: m.url,
+                            baiUrl: m.baiUrl,
+                            preRenderedWidth: 1850,
+                        },
+                    };
+                }
+            );
 
         let cTracks =
             customTracks !== undefined
