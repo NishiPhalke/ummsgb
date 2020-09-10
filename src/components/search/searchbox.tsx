@@ -28,7 +28,7 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
             });
             setSearchVal(value);
             let res: Result[] =  uniq(
-                (await response.json()).data?.gene.map((result: any) => ({
+                (await response.json()).data?.gene.map((result: { name: string, id: string, coordinates : { chromosome: string, start: number, end: number }}) => ({
                     title: result.name,
                     description:
                         result.id +

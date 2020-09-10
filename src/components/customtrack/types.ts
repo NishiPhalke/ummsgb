@@ -21,12 +21,11 @@ export type ColorPickerProps = {
 export type CustomTrackProps = {
     data?: any;
     id: string;
-    // i: number;
     height: number;
     width: number;
     title: string;
     color: string;
     domain: Domain;
-    onHeightChanged?: any;
+    onHeightChanged?: (value: number) => void;
     transform: string;
 };

@@ -6,7 +6,7 @@ export interface Domain {
 
 export type Hg19BrowserProps = {
     domain: Domain;
-    svgRef?: any;
+    svgRef?: React.RefObject<SVGSVGElement>;
     onDomainChanged: (domain: Domain) => void;
     customTracks?:
         | null

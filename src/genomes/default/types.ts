@@ -7,7 +7,7 @@ export interface Domain {
 export type DefaultProps = {
     domain: Domain;
     assembly: string;
-    svgRef?: any;
+    svgRef?:  React.RefObject<SVGSVGElement>;
     onDomainChanged: (domain: Domain) => void;
     customTracks?:
         | null

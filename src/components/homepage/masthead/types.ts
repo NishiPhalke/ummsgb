@@ -1,7 +1,7 @@
 import { Item } from '../config/types';
 
 export type MainMastheadProps = {
-    children: any;
+    children: React.ReactNode;
 };
 
 export type MenuContentProps = {

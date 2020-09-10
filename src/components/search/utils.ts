@@ -8,7 +8,7 @@ import { Result, RefSeqGenes } from "./types";
  */
 export const uniq = (results: Result[], d: string) : Result[] => {
     let r: Result[] = [];
-    results.forEach((result: any) => {
+    results.forEach((result: Result) => {
         let found = false;
         r.forEach((rr) => {
             if (rr.title === result.title) found = true;
@@ -30,7 +30,7 @@ export const isCoordinate = (value: string) => {
 };
 
 export const refsequniq = (results: RefSeqGenes[]) => {
-    results = results.filter((x: any) => x.transcripts && x.transcripts.length);
+    results = results.filter((x: RefSeqGenes) => x.transcripts && x.transcripts.length);
     let r: {name: string, coordinates: { chromosome: string, start: number, end: number}}[] = [];
     results.forEach((result: RefSeqGenes) => {
         if (r.length === 3) return;

@@ -8,7 +8,7 @@ import dna from '../../dna.png';
 import { Link } from 'react-router-dom';
 import ContentDivider from './../homepage/content/divider';
 const groupBySpecies = (assemblies: AssemblyInfo[]) => {
-    let retval: any = {};
+    let retval: Record<string,AssemblyInfo[]> = {};
     assemblies.forEach((x: AssemblyInfo) => {
         if (!retval[x.species]) retval[x.species] = [];
         retval[x.species].push(x);
@@ -16,14 +16,14 @@ const groupBySpecies = (assemblies: AssemblyInfo[]) => {
     return retval;
 };
 const compareAssembly = (a: AssemblyInfo, b: AssemblyInfo) => +b.name.replace(/\D/g, '') - +a.name.replace(/\D/g, '');
-const groupHas = (group: any, q: any) => {
+const groupHas = (group: any, q: string) => {    
     if (q === '') return true;
     for (let i = 0; i < group.length; ++i)
         if (group[i].name.toLowerCase().includes(q) || group[i].description.toLowerCase().includes(q)) return true;
     return false;
 };
 
-const GenomePage: React.FC<any> = () => {
+const GenomePage: React.FC = () => {
     const [assemblies, setAssemblies] = useState<AssemblyInfo[] | null>(null);
     const [q, setQ] = useState<string>('');
     useEffect(() => {
@@ -45,10 +45,10 @@ const GenomePage: React.FC<any> = () => {
     }, []);
     let groupedAssemblies = assemblies && groupBySpecies(assemblies);
     let genomeAssemblies =
-        groupedAssemblies &&
+        groupedAssemblies!==null &&
         Object.keys(groupedAssemblies)
             .sort()
-            .filter((x) => q === '' || x.toLowerCase().includes(q) || groupHas(groupedAssemblies[x], q));
+            .filter((x) => q === '' || x.toLowerCase().includes(q) || groupHas(groupedAssemblies!![x], q));
     return (
         <>
             <Segment inverted fixed="top" attached="top">
@@ -56,7 +56,7 @@ const GenomePage: React.FC<any> = () => {
                     <MainMenu items={mainMenuItems.items} active="Biologists" />
                 </Container>
             </Segment>
-            {genomeAssemblies && assemblies && (
+            {genomeAssemblies && assemblies && groupedAssemblies && (
                 <Container>
                     <Grid>
                         <Grid.Row />
@@ -92,7 +92,7 @@ const GenomePage: React.FC<any> = () => {
                                         <Header as="h1">{species}</Header>
                                     </Grid.Column>
                                     <Grid.Column width={11}>
-                                        {groupedAssemblies[species]
+                                        {groupedAssemblies!![species]
                                             .sort(compareAssembly)
                                             .map((assembly: AssemblyInfo, j: number) => (
                                                 <React.Fragment key={species + '_' + assembly.name}>
@@ -104,7 +104,7 @@ const GenomePage: React.FC<any> = () => {
                                                     </Link>
                                                     <br />
                                                     {assembly.description}
-                                                    {j < groupedAssemblies[species].length - 1 && (
+                                                    {j < groupedAssemblies!![species].length - 1 && (
                                                         <React.Fragment>
                                                             <br />
                                                             <br />
@@ -114,7 +114,7 @@ const GenomePage: React.FC<any> = () => {
                                             ))}
                                     </Grid.Column>
                                 </Grid.Row>
-                                {i < genomeAssemblies.length - 1 && <ContentDivider />}
+                                {genomeAssemblies && i < genomeAssemblies.length - 1 && <ContentDivider />}
                             </React.Fragment>
                         ))}
                     </Grid>
