@@ -32,7 +32,7 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
             });
             setSearchVal(value);
             let res: Result[] = uniq(
-                (await response.json()).data?.gene.map(
+                (await response.json()).data?.gene?.map(
                     (result: {
                         name: string;
                         id: string;

@@ -1,5 +1,5 @@
 import { Hg38BrowserProps } from './types';
-import React from 'react';
+import React, { useState } from 'react';
 import {
     RulerTrack,
     GraphQLTrackSet,
@@ -10,6 +10,8 @@ import {
     GenomeBrowser,
     WrappedDenseBam,
     WrappedSquishBam,
+    GraphQLLDTrack,
+    WrappedLDTrack,
     BamTrack,
 } from 'umms-gb';
 import {
@@ -36,6 +38,7 @@ const tracks = (range: Domain) => [
 ];
 
 const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
+    const [anchor, setAnchor] = useState<string>();
     let customTracks = props.customTracks?.filter((ct) => !ct.track.baiUrl);
     let bamCustomTracks = props.customTracks?.filter((ct) => ct.track.baiUrl);
     return (
@@ -120,6 +123,65 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         trackMargin={12}
                     />
                 </GraphQLTrackSet>
+                <GraphQLLDTrack
+                    domain={props.domain}
+                    width={2000}
+                    transform={'translate (0,0)'}
+                    id={'eur_ldtrack'}
+                    population={['EUR', 'AMR', 'ASN', 'AFR']}
+                    anchor={anchor}
+                    assembly={'hg38'}
+                    endpoint={'https://snps.staging.wenglab.org/graphql'}
+                >
+                    <WrappedLDTrack
+                        titleSize={12}
+                        trackMargin={12}
+                        height={100}
+                        domain={props.domain}
+                        width={2000}
+                        id={'eur'}
+                        title={'eur'}
+                        onVariantClick={(snp) => {
+                            setAnchor(snp.rsId);
+                        }}
+                    />
+                    <WrappedLDTrack
+                        titleSize={12}
+                        trackMargin={12}
+                        height={100}
+                        domain={props.domain}
+                        width={2000}
+                        id={'amr'}
+                        title={'amr'}
+                        onVariantClick={(snp) => {
+                            setAnchor(snp.rsId);
+                        }}
+                    />
+                    <WrappedLDTrack
+                        height={100}
+                        titleSize={12}
+                        trackMargin={12}
+                        domain={props.domain}
+                        width={2000}
+                        id={'asn'}
+                        title={'asn'}
+                        onVariantClick={(snp) => {
+                            setAnchor(snp.rsId);
+                        }}
+                    />
+                    <WrappedLDTrack
+                        height={100}
+                        titleSize={12}
+                        trackMargin={12}
+                        domain={props.domain}
+                        width={2000}
+                        id={'afr'}
+                        title={'afr'}
+                        onVariantClick={(snp) => {
+                            setAnchor(snp.rsId);
+                        }}
+                    />
+                </GraphQLLDTrack>
                 <GraphQLTranscriptTrack
                     domain={props.domain}
                     transform={'translate (0,0)'}
