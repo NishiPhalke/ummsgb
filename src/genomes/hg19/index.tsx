@@ -1,3 +1,3 @@
 import Hg19Browser from './browser';
-
-export { Hg19Browser };
+import MemoHg19Browser from './memobrowser'
+export { Hg19Browser, MemoHg19Browser };

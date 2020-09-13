@@ -29,6 +29,7 @@ export type ColorPickerProps = {
 
 export type CustomTrackProps = {
     data?: any;
+    loading?: boolean;
     id: string;
     height: number;
     displayMode?: string;

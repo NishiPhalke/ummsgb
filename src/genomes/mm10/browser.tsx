@@ -59,7 +59,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                 <GraphQLTranscriptTrack
                     domain={props.domain}
                     transform={'translate (0,0)'}
-                    assembly={props.assembly}
+                    assembly={'mm10'}
                     endpoint={'https://ga.staging.wenglab.org/graphql'}
                     id="g"
                 >

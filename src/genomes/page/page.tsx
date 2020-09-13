@@ -12,7 +12,7 @@ import { AddTrackModal } from '../../components/customtrack';
 import { downloadSVG } from './utils';
 import SessionModal from './sessionmodal';
 import MetadataModal from './metadatamodal';
-import DefaultBrowser from './../default/default';
+import MemoDefaultBrowser from './../default/default';
 import { RefSeqSearchBox } from './../../components/search';
 
 const parseDomain = (domain: string) => ({
@@ -93,35 +93,27 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     }, [transcriptCoordinates, chromLength, props.assembly]);
 
     useEffect(() => {
-        const fetchChromLength = async (d: Domain) => {
+        const fetchChromLength = async (chrom: string) => {
             const response = await fetch('http://35.201.115.1/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
                     query: CHROM_LENGTHS_QUERY,
-                    variables: { assembly: props.assembly, chromosome: d!!.chromosome },
+                    variables: { assembly: props.assembly, chromosome: chrom },
                 }),
                 headers: { 'Content-Type': 'application/json' },
             });
             let chrLength = (await response.json()).data?.chromlengths[0]?.length || 0;
             setChromLength(chrLength);
-
-            /* setDomain({
-                chromosome: d.chromosome,
-                start: d.start < 0 ? 0 : d.start,
-                end: d.end > chrLength ? chrLength : d.end,
-            });*/
         };
         let d =
-            domain ||
+            domain?.chromosome ||
             (genomeConfig[props.assembly]
-                ? genomeConfig[props.assembly].domain
-                : transcriptCoordinates && {
-                      chromosome: transcriptCoordinates.coordinates.chromosome,
-                      start: transcriptCoordinates.coordinates.start,
-                      end: transcriptCoordinates.coordinates.end,
-                  });
+                ? genomeConfig[props.assembly].domain.chromosome
+                : transcriptCoordinates && 
+                     transcriptCoordinates.coordinates.chromosome
+            )
         if (d) fetchChromLength(d);
-    }, [props.assembly, transcriptCoordinates, props.session, domain]);
+    }, [props.assembly, transcriptCoordinates, props.session, domain?.chromosome]);
     useEffect(() => {
         let d: Domain | undefined =
             (props.session && props.session.domain) ||
@@ -149,7 +141,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         setSaveSessionModalShown(true);
     };
 
-    const onDomainChanged = React.useCallback(
+    const onDomainChanged = React.useCallback( 
         (d: Domain) => {
             if (d.chromosome && d.chromosome !== domain!!.chromosome) {
                 setDomain({
@@ -167,7 +159,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         },
         [domain, chromLength]
     );
-    const onModalAccept = (
+    const onModalAccept = React.useCallback((
         modalState:
             | { title: string; url: string; baiUrl?: string; displayMode?: string; color: string; domain: Domain }[]
             | undefined
@@ -198,9 +190,8 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                     };
                 }
             );
-
-        let cTracks =
-            customTracks !== undefined
+            setCustomTracks(customTracks=>{
+                return   (customTracks !== undefined
                 ? tracks
                     ? [
                           ...customTracks!!,
@@ -211,12 +202,10 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                     : customTracks
                 : tracks
                 ? tracks
-                : undefined;
-
-        setCustomTracks(cTracks);
-
+                : undefined);
+            })
         setAddTrackModalShown(false);
-    };
+    },[]);
     const trackListReceived = (e: React.ChangeEvent<HTMLInputElement>) => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
@@ -228,7 +217,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
     const svg = useRef<SVGSVGElement>(null);
     const download = downloadSVG(svg, 'tracks.svg');
-    console.log(domain, chromLength);
+    
     if (!assemblyInfo || !domain || !domain.end || !chromLength)
         return (
             <>
@@ -241,7 +230,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
             </>
         );
 
-    const BrowserComponent = (genomeConfig[props.assembly] && genomeConfig[props.assembly].browser) || DefaultBrowser;
+    const BrowserComponent = (genomeConfig[props.assembly] && genomeConfig[props.assembly].browser) || MemoDefaultBrowser;
     let SearchBoxComponent = genomeConfig[props.assembly] ? SearchBox : RefSeqSearchBox;
     return (
         <>

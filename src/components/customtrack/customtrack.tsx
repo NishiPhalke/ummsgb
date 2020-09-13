@@ -10,7 +10,7 @@ import {
 } from 'umms-gb';
 import { TrackType, deduceTrackType } from './deducetype';
 const CustomTrack: React.FC<CustomTrackProps> = (props) => {
-    if (!props.data) {
+    if (!props.data || props.loading) {
         return (
             <WrappedTrack width={props.width} height={props.height} noData loading>
                 <EmptyTrack {...(props || {})} />

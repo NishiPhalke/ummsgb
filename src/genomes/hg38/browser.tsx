@@ -37,16 +37,36 @@ const tracks = (range: Domain) => [
     rampageminus(range),
 ];
 
-const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
+const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {    
+
     const [anchor, setAnchor] = useState<string>();
     let customTracks = props.customTracks?.filter((ct) => !ct.track.baiUrl);
     let bamCustomTracks = props.customTracks?.filter((ct) => ct.track.baiUrl);
+    
     return (
         <Container style={{ width: '90%' }}>
-            <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>
+            <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>               
                 <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
-                    <RulerTrack width={2000} height={50} {...(props || {})} />
-                </WrappedTrack>
+                    <RulerTrack width={2000} height={50} domain={props.domain} />
+                </WrappedTrack>                
+                <GraphQLTranscriptTrack
+                    domain={props.domain}
+                    transform={'translate (0,0)'}
+                    assembly={'GRCh38'}
+                    endpoint={'https://ga.staging.wenglab.org/graphql'}
+                    id="g"
+                >
+                    <WrappedPackTranscriptTrack
+                        titleSize={12}
+                        trackMargin={12}
+                        title={'GENCODE v29 transcripts'}
+                        color="#8b0000"
+                        id="transcript_track"
+                        rowHeight={14}
+                        width={2000}
+                        domain={props.domain}
+                    />
+                </GraphQLTranscriptTrack>
                 <GraphQLTrackSet
                     tracks={tracks(props.domain)}
                     transform={'translate (0,0)'}
@@ -140,7 +160,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         domain={props.domain}
                         width={2000}
                         id={'eur'}
-                        title={'eur'}
+                        title={'common EUROPEAN SNPs with LD'}
                         onVariantClick={(snp) => {
                             setAnchor(snp.rsId);
                         }}
@@ -152,7 +172,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         domain={props.domain}
                         width={2000}
                         id={'amr'}
-                        title={'amr'}
+                        title={'common AMERICAN SNPs with LD'}
                         onVariantClick={(snp) => {
                             setAnchor(snp.rsId);
                         }}
@@ -164,7 +184,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         domain={props.domain}
                         width={2000}
                         id={'asn'}
-                        title={'asn'}
+                        title={'common ASIAN SNPs with LD'}
                         onVariantClick={(snp) => {
                             setAnchor(snp.rsId);
                         }}
@@ -176,30 +196,12 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         domain={props.domain}
                         width={2000}
                         id={'afr'}
-                        title={'afr'}
+                        title={'common AFRICAN SNPs with LD'}
                         onVariantClick={(snp) => {
                             setAnchor(snp.rsId);
                         }}
                     />
-                </GraphQLLDTrack>
-                <GraphQLTranscriptTrack
-                    domain={props.domain}
-                    transform={'translate (0,0)'}
-                    assembly={'GRCh38'}
-                    endpoint={'https://ga.staging.wenglab.org/graphql'}
-                    id="g"
-                >
-                    <WrappedPackTranscriptTrack
-                        titleSize={12}
-                        trackMargin={12}
-                        title={'GENCODE v29 transcripts'}
-                        color="#8b0000"
-                        id="transcript_track"
-                        rowHeight={14}
-                        width={2000}
-                        domain={props.domain}
-                    />
-                </GraphQLTranscriptTrack>
+                </GraphQLLDTrack>           
                 {customTracks && (
                     <GraphQLTrackSet
                         tracks={customTracks.map((x) => ({

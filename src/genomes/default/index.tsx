@@ -1,3 +1,3 @@
 import DefaultBrowser from './default';
-
-export { DefaultBrowser };
+import MemoDefaultBrowser from './memobrowser'
+export { DefaultBrowser, MemoDefaultBrowser };
