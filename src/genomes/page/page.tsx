@@ -91,6 +91,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
             }
         }
     }, [transcriptCoordinates, chromLength, props.assembly]);
+    const  chromosome  = domain?.chromosome;
 
     useEffect(() => {
         const fetchChromLength = async (chrom: string) => {
@@ -106,14 +107,14 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
             setChromLength(chrLength);
         };
         let d =
-            domain?.chromosome ||
+            chromosome ||
             (genomeConfig[props.assembly]
                 ? genomeConfig[props.assembly].domain.chromosome
                 : transcriptCoordinates && 
                      transcriptCoordinates.coordinates.chromosome
             )
         if (d) fetchChromLength(d);
-    }, [props.assembly, transcriptCoordinates, props.session, domain?.chromosome]);
+    }, [props.assembly, transcriptCoordinates, props.session, chromosome]);
     useEffect(() => {
         let d: Domain | undefined =
             (props.session && props.session.domain) ||
