@@ -25,6 +25,7 @@ import {
 import { Hg19BrowserProps } from './types';
 import { CustomTrack } from '../../components/customtrack';
 import { Domain } from '../types';
+import { UploadedFile } from './../../components/uploadedfile';
 
 const tracks = (range: Domain) => [
     dnasetrack(range),
@@ -167,6 +168,31 @@ const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => {
                         ))}
                     </GraphQLTrackSet>
                 )}
+                 {props.customFiles &&
+                    props.customFiles.map((ufile, i) => {
+                        return (
+                            <UploadedFile
+                                key={ufile.title + '_' + i}
+                                file={ufile.file}
+                                id={ufile.title + '_' + i}
+                                transform="translate(0,0)"
+                                width={2000}
+                                domain={props.domain}
+                            >
+                                <CustomTrack
+                                    key={`ct${i}`}
+                                    width={2000}
+                                    height={50}
+                                    id={`ct${i}`}
+                                    transform="translate(0,0)"
+                                    displayMode={ufile.displayMode}
+                                    title={ufile.title}
+                                    color={'#ff0000'}
+                                    domain={props.domain}
+                                />
+                            </UploadedFile>
+                        );
+                    })}
                 {bamCustomTracks?.map((bt, i) => {
                     return (
                         <BamTrack

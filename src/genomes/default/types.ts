@@ -7,4 +7,5 @@ export type DefaultProps = {
     svgRef?: React.RefObject<SVGSVGElement>;
     onDomainChanged: (domain: Domain) => void;
     customTracks?: customTrack[];
+    customFiles?: { file: File; title: string; displayMode?: string }[];
 };

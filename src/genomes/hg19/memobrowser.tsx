@@ -10,9 +10,10 @@ const MemoHg19Browser: React.FC<Hg19BrowserProps> = (props) => {
                 customTracks={props.customTracks}
                 svgRef={props.svgRef}
                 onDomainChanged={props.onDomainChanged}
+                customFiles={props.customFiles}
             />
         );
-    }, [props.domain, props.customTracks, props.onDomainChanged, props.svgRef]);
+    }, [props.domain, props.customTracks, props.onDomainChanged, props.svgRef, props.customFiles]);
 };
 
 export default MemoHg19Browser;

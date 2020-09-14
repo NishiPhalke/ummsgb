@@ -16,6 +16,7 @@ import MemoDefaultBrowser from './../default/default';
 import { RefSeqSearchBox } from './../../components/search';
 import TrackConfigs from './trackconfigs';
 
+
 const parseDomain = (domain: string) => ({
     chromosome: domain.split(':')[0],
     start: +domain.split(':')[1].split('-')[0].replace(/,/g, ''),
@@ -24,6 +25,7 @@ const parseDomain = (domain: string) => ({
 
 const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const uploadTrackList = React.useRef<HTMLInputElement>(null);
+    const uploadTrackFile = React.useRef<HTMLInputElement>(null);
     const [domain, setDomain] = useState<Domain | undefined>(props.session && props.session.domain);
     const [assemblyInfo, setAssemblyInfoData] = useState<AssemblyInfo | null>(null);
     const [chromLength, setChromLength] = useState<number>(0);
@@ -31,6 +33,9 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const [saveSessionModalShown, setSaveSessionModalShown] = useState<boolean>(false);
     const [metadataModalShown, setMetadataModalShown] = useState<boolean>(false);
     const [sessionData, setSessionData] = useState<string>();
+    const [customFiles, setCustomFiles] = useState<
+        Record<string, { file: File; title: string; displayMode?: string }>
+    >();
     const [transcriptCoordinates, setTranscriptCoordinates] = useState<{
         coordinates: { chromosome: string; start: number; end: number };
     }>();
@@ -203,18 +208,6 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         ct[t.track.url] = t;
                     });
                 }
-                /*  ? tracks
-                    ? [
-                          ...customTracks!!.filter(
-                              (t) => tracks!!.find((ct) => ct.track.url === t.track.url) === undefined
-                          ),
-                          ...tracks!!,
-                      ]
-                    : {...customTracks}
-                : tracks
-                ? tracks
-                : undefined;*/
-
                 return !tracks && !customTracks ? undefined : ct;
             });
             setAddTrackModalShown(false);
@@ -243,9 +236,24 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         e.target.files && reader.readAsText(e.target.files[0]);
     };
 
+    const trackFileReceived = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const fileList = Array.from(e.target.files!!);
+            let cFiles: Record<string, { file: File; title: string; displayMode?: string }> = {};
+            const title: string = fileList[0].name;
+            if (customFiles !== undefined) {
+                cFiles = { ...customFiles };
+                cFiles[title] = { file: fileList[0], title };
+            } else {
+                cFiles[title] = { file: fileList[0], title };
+            }
+            setCustomFiles(cFiles);
+        }
+    };
+
     const svg = useRef<SVGSVGElement>(null);
     const download = downloadSVG(svg, 'tracks.svg');
-
+    
     if (!assemblyInfo || !domain || !domain.end || !chromLength)
         return (
             <>
@@ -257,7 +265,6 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                 </Container>
             </>
         );
-    console.log(customTracks, 'ct');
     const BrowserComponent =
         (genomeConfig[props.assembly] && genomeConfig[props.assembly].browser) || MemoDefaultBrowser;
     let SearchBoxComponent = genomeConfig[props.assembly] ? SearchBox : RefSeqSearchBox;
@@ -304,6 +311,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         onDomainChanged={onDomainChanged}
                         customTracks={customTracks ? Object.values(customTracks) : undefined}
                         svgRef={svg}
+                        customFiles={customFiles ? Object.values(customFiles) : undefined}
                     />
                     <br />
                     <AddTrackModal
@@ -334,6 +342,19 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         Upload Track List
                     </Button>
                     <input name={'file'} type={'file'} ref={uploadTrackList} hidden onChange={trackListReceived} />
+                    <Button
+                        onClick={() => uploadTrackFile && uploadTrackFile.current && uploadTrackFile.current!!.click()}
+                    >
+                        Upload Track File
+                    </Button>
+                    <input
+                        name={'file'}
+                        type={'file'}
+                        ref={uploadTrackFile}
+                        hidden
+                        onChange={trackFileReceived}
+                        multiple
+                    />
                     <div style={{ height: '40px' }} />
                     <SessionModal
                         open={saveSessionModalShown}
@@ -342,7 +363,18 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         warn={0}
                     />
                     <br />
-                    {customTracks && <TrackConfigs tracks={Object.values(customTracks)} onAccept={onModalAccept} />}
+                    <TrackConfigs
+                        files={customFiles}
+                        tracks={customTracks ? Object.values(customTracks) : undefined}
+                        onSelect={onModalAccept}
+                        onFileSelect={(title: string, displayMode: string) => {
+                            if (customFiles) {
+                                let cFiles = { ...customFiles };
+                                cFiles[title] = { ...cFiles[title], displayMode };
+                                setCustomFiles(cFiles);
+                            }
+                        }}
+                    />
                 </>
             </div>
         </>

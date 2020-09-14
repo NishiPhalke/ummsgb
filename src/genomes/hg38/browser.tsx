@@ -26,6 +26,7 @@ import {
 import { CustomTrack } from '../../components/customtrack';
 import { Container } from 'semantic-ui-react';
 import { Domain } from '../types';
+import { UploadedFile } from './../../components/uploadedfile';
 
 const tracks = (range: Domain) => [
     dnasetrack(range),
@@ -41,7 +42,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
     const [anchor, setAnchor] = useState<string>();
     let customTracks = props.customTracks?.filter((ct) => !ct.track.baiUrl);
     let bamCustomTracks = props.customTracks?.filter((ct) => ct.track.baiUrl);
-    console.log('hg38');
+
     return (
         <Container style={{ width: '90%' }}>
             <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>
@@ -229,6 +230,31 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         ))}
                     </GraphQLTrackSet>
                 )}
+                {props.customFiles &&
+                    props.customFiles.map((ufile, i) => {
+                        return (
+                            <UploadedFile
+                                key={ufile.title + '_' + i}
+                                file={ufile.file}
+                                id={ufile.title + '_' + i}
+                                transform="translate(0,0)"
+                                width={2000}
+                                domain={props.domain}
+                            >
+                                <CustomTrack
+                                    key={`ct${i}`}
+                                    width={2000}
+                                    height={50}
+                                    id={`ct${i}`}
+                                    transform="translate(0,0)"
+                                    displayMode={ufile.displayMode}
+                                    title={ufile.title}
+                                    color={'#ff0000'}
+                                    domain={props.domain}
+                                />
+                            </UploadedFile>
+                        );
+                    })}
                 {bamCustomTracks?.map((bt, i) => {
                     return (
                         <BamTrack

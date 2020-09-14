@@ -114,7 +114,12 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
     };
     return (
         <>
-            <Modal trigger={<Button onClick={props.onOpen}> Add Custom Track</Button>} open={props.open} onClose={props.onClose} closeOnEscape={props.open}>
+            <Modal
+                trigger={<Button onClick={props.onOpen}> Add Custom Track</Button>}
+                open={props.open}
+                onClose={props.onClose}
+                closeOnEscape={props.open}
+            >
                 <Modal.Header>Add Custom Track</Modal.Header>
                 <Modal.Content>
                     {testing ? (

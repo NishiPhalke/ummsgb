@@ -10,9 +10,10 @@ const MemoMm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                 customTracks={props.customTracks}
                 svgRef={props.svgRef}
                 onDomainChanged={props.onDomainChanged}
+                customFiles={props.customFiles}
             />
         );
-    }, [props.domain, props.customTracks, props.onDomainChanged, props.svgRef]);
+    }, [props.domain, props.customTracks, props.onDomainChanged, props.svgRef, props.customFiles]);
 };
 
 export default MemoMm10Browser;

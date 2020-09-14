@@ -10,9 +10,10 @@ const MemoHg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                 customTracks={props.customTracks}
                 svgRef={props.svgRef}
                 onDomainChanged={props.onDomainChanged}
+                customFiles={props.customFiles}
             />
         );
-    }, [props.domain, props.customTracks, props.onDomainChanged, props.svgRef]);
+    }, [props.domain, props.customTracks, props.onDomainChanged, props.svgRef, props.customFiles]);
 };
 
 export default MemoHg38Browser;

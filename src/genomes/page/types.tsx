@@ -33,8 +33,10 @@ export type MetadataModalProps = {
 };
 
 export type TrackConfigsProps = {
-    tracks: customTrack[];
-    onAccept: (
+    tracks?: customTrack[];
+    files?: Record<string, { file: File; title: string; displayMode?: string }>;
+    onFileSelect: (title: string, displayMode: string) => void;
+    onSelect: (
         modalState: {
             title: string;
             url: string;

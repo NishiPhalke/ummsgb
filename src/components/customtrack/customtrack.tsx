@@ -1,5 +1,5 @@
 import React from 'react';
-import { CustomTrackProps, TrackType } from './types';
+import { CustomTrackProps, TrackType, DEFAULT_BAM_DISPLAYMODE } from './types';
 import {
     WrappedTrack,
     WrappedFullBigWig,
@@ -9,6 +9,8 @@ import {
     WrappedDenseBigWig,
 } from 'umms-gb';
 import { deduceTrackType } from './deducetype';
+import { DEFAULT_BIGBED_DISPLAYMODE } from '../../genomes/page/types';
+import { DEFAULT_BIGWIG_DISPLAYMODE } from './../../genomes/page/types';
 const CustomTrack: React.FC<CustomTrackProps> = (props) => {
     if (!props.data || props.loading) {
         return (
@@ -18,11 +20,18 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
         );
     }
     const trackType = deduceTrackType(props.data);
-    const displayMode = props.displayMode;
+    const displayMode =
+        props.displayMode ||
+        (trackType === TrackType.BIGBED
+            ? DEFAULT_BIGBED_DISPLAYMODE
+            : trackType === TrackType.BIGWIG
+            ? DEFAULT_BIGWIG_DISPLAYMODE
+            : DEFAULT_BAM_DISPLAYMODE);
     switch (trackType) {
         case TrackType.BIGBED:
             return displayMode === 'dense' ? (
                 <WrappedDenseBigBed
+                    {...props}
                     title={props.title}
                     width={props.width}
                     height={props.height}
@@ -36,6 +45,7 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
                 />
             ) : (
                 <WrappedSquishBigBed
+                    {...props}
                     title={props.title}
                     width={props.width}
                     height={props.height}
@@ -52,6 +62,7 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
         case TrackType.BIGWIG:
             return displayMode === 'dense' ? (
                 <WrappedDenseBigWig
+                    {...props}
                     title={props.title}
                     width={props.width}
                     height={props.height}
@@ -65,6 +76,7 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
                 />
             ) : (
                 <WrappedFullBigWig
+                    {...props}
                     title={props.title}
                     width={props.width}
                     height={props.height}

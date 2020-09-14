@@ -40,7 +40,13 @@ const MetadataModal: React.FC<MetadataModalProps> = (props) => {
         }
     })();
     return (
-        <Modal trigger={<Button onClick={props.onOpen}> Metadata</Button>} open={props.open} size={'fullscreen'} onClose={props.onClose} closeOnEscape={props.open}>
+        <Modal
+            trigger={<Button onClick={props.onOpen}> Metadata</Button>}
+            open={props.open}
+            size={'fullscreen'}
+            onClose={props.onClose}
+            closeOnEscape={props.open}
+        >
             <Modal.Header>Encode Metadata</Modal.Header>
             <Modal.Content>
                 <React.Fragment>
