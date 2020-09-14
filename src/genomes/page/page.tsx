@@ -14,6 +14,7 @@ import SessionModal from './sessionmodal';
 import MetadataModal from './metadatamodal';
 import MemoDefaultBrowser from './../default/default';
 import { RefSeqSearchBox } from './../../components/search';
+import TrackConfigs from './trackconfigs';
 
 const parseDomain = (domain: string) => ({
     chromosome: domain.split(':')[0],
@@ -34,7 +35,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         coordinates: { chromosome: string; start: number; end: number };
     }>();
 
-    const [customTracks, setCustomTracks] = useState<undefined | customTrack[]>(
+    const [customTracks, setCustomTracks] = useState<undefined | Record<string, customTrack>>(
         props.session && props.session.customTracks
     );
 
@@ -91,7 +92,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
             }
         }
     }, [transcriptCoordinates, chromLength, props.assembly]);
-    const  chromosome  = domain?.chromosome;
+    const chromosome = domain?.chromosome;
 
     useEffect(() => {
         const fetchChromLength = async (chrom: string) => {
@@ -110,9 +111,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
             chromosome ||
             (genomeConfig[props.assembly]
                 ? genomeConfig[props.assembly].domain.chromosome
-                : transcriptCoordinates && 
-                     transcriptCoordinates.coordinates.chromosome
-            )
+                : transcriptCoordinates && transcriptCoordinates.coordinates.chromosome);
         if (d) fetchChromLength(d);
     }, [props.assembly, transcriptCoordinates, props.session, chromosome]);
     useEffect(() => {
@@ -142,7 +141,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         setSaveSessionModalShown(true);
     };
 
-    const onDomainChanged = React.useCallback( 
+    const onDomainChanged = React.useCallback(
         (d: Domain) => {
             if (d.chromosome && d.chromosome !== domain!!.chromosome) {
                 setDomain({
@@ -160,65 +159,93 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         },
         [domain, chromLength]
     );
-    const onModalAccept = React.useCallback((
-        modalState:
-            | { title: string; url: string; baiUrl?: string; displayMode?: string; color: string; domain: Domain }[]
-            | undefined
-    ) => {
-        let tracks: customTrack[] | undefined =
-            modalState &&
-            modalState.map(
-                (m: {
-                    title: string;
-                    url: string;
-                    baiUrl?: string;
-                    displayMode?: string;
-                    color: string;
-                    domain: Domain;
-                }) => {
-                    return {
-                        title: m.title,
-                        color: m.color,
-                        displayMode: m.displayMode,
-                        track: {
-                            start: m.domain.start,
-                            end: m.domain.end,
-                            chr1: m.domain.chromosome!!,
-                            url: m.url,
-                            baiUrl: m.baiUrl,
-                            preRenderedWidth: 1850,
-                        },
-                    };
+    const onModalAccept = React.useCallback(
+        (
+            modalState:
+                | { title: string; url: string; baiUrl?: string; displayMode?: string; color: string; domain: Domain }[]
+                | undefined
+        ) => {
+            let tracks: customTrack[] | undefined =
+                modalState &&
+                modalState.map(
+                    (m: {
+                        title: string;
+                        url: string;
+                        baiUrl?: string;
+                        displayMode?: string;
+                        color: string;
+                        domain: Domain;
+                    }) => {
+                        return {
+                            title: m.title,
+                            color: m.color,
+                            displayMode: m.displayMode,
+                            track: {
+                                start: m.domain.start,
+                                end: m.domain.end,
+                                chr1: m.domain.chromosome!!,
+                                url: m.url,
+                                baiUrl: m.baiUrl,
+                                preRenderedWidth: 1850,
+                            },
+                        };
+                    }
+                );
+            setCustomTracks((customTracks) => {
+                let ct: Record<string, customTrack> = {};
+                if (customTracks !== undefined) {
+                    ct = { ...customTracks };
+                    tracks?.forEach((t) => {
+                        ct[t.track.url] = t;
+                    });
+                } else {
+                    tracks?.forEach((t) => {
+                        ct[t.track.url] = t;
+                    });
                 }
-            );
-            setCustomTracks(customTracks=>{
-                return   (customTracks !== undefined
-                ? tracks
+                /*  ? tracks
                     ? [
-                          ...customTracks!!,
-                          ...tracks!!.filter(
-                              (t) => customTracks!!.find((ct) => ct.track.url === t.track.url) === undefined
+                          ...customTracks!!.filter(
+                              (t) => tracks!!.find((ct) => ct.track.url === t.track.url) === undefined
                           ),
+                          ...tracks!!,
                       ]
-                    : customTracks
+                    : {...customTracks}
                 : tracks
                 ? tracks
-                : undefined);
-            })
-        setAddTrackModalShown(false);
-    },[]);
+                : undefined;*/
+
+                return !tracks && !customTracks ? undefined : ct;
+            });
+            setAddTrackModalShown(false);
+        },
+        []
+    );
     const trackListReceived = (e: React.ChangeEvent<HTMLInputElement>) => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
             const tracks: customTrack[] = JSON.parse(e.target.result);
-            setCustomTracks(customTracks ? [...customTracks, ...tracks] : [...tracks]);
+            setCustomTracks((customTracks) => {
+                let ct: Record<string, customTrack> = {};
+                if (customTracks !== undefined) {
+                    ct = { ...customTracks };
+                    tracks?.forEach((t) => {
+                        ct[t.track.url] = t;
+                    });
+                } else {
+                    tracks?.forEach((t) => {
+                        ct[t.track.url] = t;
+                    });
+                }
+                return !tracks && !customTracks ? undefined : ct;
+            });
         };
         e.target.files && reader.readAsText(e.target.files[0]);
     };
 
     const svg = useRef<SVGSVGElement>(null);
     const download = downloadSVG(svg, 'tracks.svg');
-    
+
     if (!assemblyInfo || !domain || !domain.end || !chromLength)
         return (
             <>
@@ -230,8 +257,9 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                 </Container>
             </>
         );
-
-    const BrowserComponent = (genomeConfig[props.assembly] && genomeConfig[props.assembly].browser) || MemoDefaultBrowser;
+    console.log(customTracks, 'ct');
+    const BrowserComponent =
+        (genomeConfig[props.assembly] && genomeConfig[props.assembly].browser) || MemoDefaultBrowser;
     let SearchBoxComponent = genomeConfig[props.assembly] ? SearchBox : RefSeqSearchBox;
     return (
         <>
@@ -274,7 +302,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         domain={domain}
                         assembly={props.assembly}
                         onDomainChanged={onDomainChanged}
-                        customTracks={customTracks}
+                        customTracks={customTracks ? Object.values(customTracks) : undefined}
                         svgRef={svg}
                     />
                     <br />
@@ -313,6 +341,8 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         onClose={() => setSaveSessionModalShown(false)}
                         warn={0}
                     />
+                    <br />
+                    {customTracks && <TrackConfigs tracks={Object.values(customTracks)} onAccept={onModalAccept} />}
                 </>
             </div>
         </>

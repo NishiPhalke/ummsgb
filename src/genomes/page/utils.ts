@@ -1,3 +1,4 @@
+import { DEFAULT_BIGWIG_DISPLAYMODE, TrackType, DEFAULT_BAM_DISPLAYMODE, DEFAULT_BIGBED_DISPLAYMODE } from './types';
 const svgData = (_svg: any): string => {
     let svg = _svg.cloneNode(true);
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
@@ -20,3 +21,46 @@ const downloadData = (text: string, filename: string, type: string = 'text/plain
 
 export const downloadSVG = (ref: React.MutableRefObject<any>, filename: string) => () =>
     ref.current && downloadData(svgData(ref.current!), filename, 'image/svg;charset=utf-8');
+
+export const getTrackDisplayModes = (url: string): { key: string; text: string; value: string }[] => {
+    if (getTrackType(url) === 'BIGWIG') {
+        return [
+            { key: 'dense', text: 'dense', value: 'dense' },
+            { key: 'full', text: 'full', value: 'full' },
+        ];
+    } else if (getTrackType(url) === 'BAM' || getTrackType(url) === 'BIGBED') {
+        return [
+            { key: 'dense', text: 'dense', value: 'dense' },
+            { key: 'squish', text: 'squish', value: 'squish' },
+        ];
+    } else {
+        return [
+            { key: 'dense', text: 'dense', value: 'dense' },
+            { key: 'squish', text: 'squish', value: 'squish' },
+            { key: 'full', text: 'full', value: 'full' },
+        ];
+    }
+};
+
+export const getDefaultDisplayMode = (url: string): string | undefined => {
+    if (getTrackType(url) === 'BIGWIG') {
+        return DEFAULT_BIGWIG_DISPLAYMODE;
+    } else if (getTrackType(url) === 'BIGBED') {
+        return DEFAULT_BIGBED_DISPLAYMODE;
+    } else if (getTrackType(url) === 'BAM') {
+        return DEFAULT_BAM_DISPLAYMODE;
+    } else {
+        return undefined;
+    }
+};
+const getTrackType = (url: string): string | undefined => {
+    if (url.toLowerCase().includes('.bigwig') || url.toLowerCase().includes('.bw')) {
+        return TrackType.BIGWIG;
+    } else if (url.toLowerCase().includes('.bigbed') || url.toLowerCase().includes('.bb')) {
+        return TrackType.BIGBED;
+    } else if (url.toLowerCase().includes('.bam')) {
+        return TrackType.BAM;
+    } else {
+        return undefined;
+    }
+};

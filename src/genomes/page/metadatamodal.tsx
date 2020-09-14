@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button, Menu } from 'semantic-ui-react';
 import { MetadataModalProps } from './types';
 import { EncodeSearch, EncodeMetadata, ExperimentsByFeature } from 'gbmetadata';
+import { getDefaultDisplayMode } from './utils';
 
 const MetadataModal: React.FC<MetadataModalProps> = (props) => {
     const [activePage, setActivePage] = useState<string>('search');
@@ -13,6 +14,7 @@ const MetadataModal: React.FC<MetadataModalProps> = (props) => {
                     url: u,
                     domain: props.domain,
                     color: '#ff0000',
+                    displayMode: getDefaultDisplayMode(u),
                     title: u!!.split('/')[u!!.split('/').length - 1],
                 };
             });
@@ -38,7 +40,7 @@ const MetadataModal: React.FC<MetadataModalProps> = (props) => {
         }
     })();
     return (
-        <Modal trigger={<Button onClick={props.onOpen}> Metadata</Button>} open={props.open} size={'fullscreen'}>
+        <Modal trigger={<Button onClick={props.onOpen}> Metadata</Button>} open={props.open} size={'fullscreen'} onClose={props.onClose} closeOnEscape={props.open}>
             <Modal.Header>Encode Metadata</Modal.Header>
             <Modal.Content>
                 <React.Fragment>

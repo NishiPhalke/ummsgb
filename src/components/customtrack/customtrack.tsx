@@ -1,5 +1,5 @@
 import React from 'react';
-import { CustomTrackProps, DEFAULT_BIGBED_DISPLAYMODE, DEFAULT_BIGWIG_DISPLAYMODE } from './types';
+import { CustomTrackProps, TrackType } from './types';
 import {
     WrappedTrack,
     WrappedFullBigWig,
@@ -8,7 +8,7 @@ import {
     WrappedSquishBigBed,
     WrappedDenseBigWig,
 } from 'umms-gb';
-import { TrackType, deduceTrackType } from './deducetype';
+import { deduceTrackType } from './deducetype';
 const CustomTrack: React.FC<CustomTrackProps> = (props) => {
     if (!props.data || props.loading) {
         return (
@@ -18,8 +18,7 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
         );
     }
     const trackType = deduceTrackType(props.data);
-    const displayMode =
-        props.displayMode || (trackType === 'BIGBED' ? DEFAULT_BIGBED_DISPLAYMODE : DEFAULT_BIGWIG_DISPLAYMODE);
+    const displayMode = props.displayMode;
     switch (trackType) {
         case TrackType.BIGBED:
             return displayMode === 'dense' ? (

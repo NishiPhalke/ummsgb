@@ -3,7 +3,7 @@ import { customTrack, Domain } from '../types';
 export type GenomeBrowserPageProps = {
     assembly: string;
     session?: {
-        customTracks: customTrack[] | undefined;
+        customTracks: Record<string, customTrack> | undefined;
         domain: Domain;
     };
 };
@@ -30,4 +30,29 @@ export type MetadataModalProps = {
               }[]
             | undefined
     ) => void;
+};
+
+export type TrackConfigsProps = {
+    tracks: customTrack[];
+    onAccept: (
+        modalState: {
+            title: string;
+            url: string;
+            baiUrl?: string;
+            displayMode?: string;
+            color: string;
+            domain: Domain;
+        }[]
+    ) => void;
+};
+
+export const DEFAULT_BIGBED_DISPLAYMODE = 'dense';
+export const DEFAULT_BIGWIG_DISPLAYMODE = 'full';
+export const DEFAULT_BAM_DISPLAYMODE = 'squish';
+
+export const TrackType = {
+    INVALID: 'INVALID',
+    BIGWIG: 'BIGWIG',
+    BIGBED: 'BIGBED',
+    BAM: 'BAM',
 };

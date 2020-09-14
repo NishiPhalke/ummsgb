@@ -1,8 +1,4 @@
-export const TrackType = {
-    INVALID: 'INVALID',
-    BIGWIG: 'BIGWIG',
-    BIGBED: 'BIGBED',
-};
+import { TrackType } from './types';
 
 export const deduceTrackType = (data: any) => {
     if (!data.length) return TrackType.INVALID;

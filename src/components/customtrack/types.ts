@@ -43,3 +43,11 @@ export type CustomTrackProps = {
 
 export const DEFAULT_BIGBED_DISPLAYMODE = 'dense';
 export const DEFAULT_BIGWIG_DISPLAYMODE = 'full';
+export const DEFAULT_BAM_DISPLAYMODE = 'squish';
+
+export const TrackType = {
+    INVALID: 'INVALID',
+    BIGWIG: 'BIGWIG',
+    BIGBED: 'BIGBED',
+    BAM: 'BAM',
+};

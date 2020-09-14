@@ -7,7 +7,7 @@ const SessionModal: React.FC<SessionModalProps> = (props) => {
     const [copied, setCopied] = useState<boolean>(false);
 
     return (
-        <Modal open={props.open}>
+        <Modal open={props.open} onClose={props.onClose} closeOnEscape={props.open}>
             <Modal.Header>Session Saved!</Modal.Header>
             <Modal.Content>
                 <React.Fragment>

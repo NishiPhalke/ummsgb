@@ -37,18 +37,17 @@ const tracks = (range: Domain) => [
     rampageminus(range),
 ];
 
-const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {    
-
+const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
     const [anchor, setAnchor] = useState<string>();
     let customTracks = props.customTracks?.filter((ct) => !ct.track.baiUrl);
     let bamCustomTracks = props.customTracks?.filter((ct) => ct.track.baiUrl);
-    
+    console.log('hg38');
     return (
         <Container style={{ width: '90%' }}>
-            <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>               
+            <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>
                 <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
                     <RulerTrack width={2000} height={50} domain={props.domain} />
-                </WrappedTrack>                
+                </WrappedTrack>
                 <GraphQLTranscriptTrack
                     domain={props.domain}
                     transform={'translate (0,0)'}
@@ -201,7 +200,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                             setAnchor(snp.rsId);
                         }}
                     />
-                </GraphQLLDTrack>           
+                </GraphQLLDTrack>
                 {customTracks && (
                     <GraphQLTrackSet
                         tracks={customTracks.map((x) => ({

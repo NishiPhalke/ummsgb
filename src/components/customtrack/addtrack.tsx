@@ -1,9 +1,56 @@
 import React, { useState } from 'react';
-import { AddTrackProps } from './types';
+import {
+    AddTrackProps,
+    DEFAULT_BIGWIG_DISPLAYMODE,
+    DEFAULT_BIGBED_DISPLAYMODE,
+    DEFAULT_BAM_DISPLAYMODE,
+    TrackType,
+} from './types';
 import { Button, Modal, Message, Input, Radio, Dropdown } from 'semantic-ui-react';
 import ColorPicker from './colorpicker';
 import { TEST_QUERY } from './queries';
+const getTrackDisplayModes = (url: string): { key: string; text: string; value: string }[] => {
+    if (getTrackType(url) === 'BIGWIG') {
+        return [
+            { key: 'dense', text: 'dense', value: 'dense' },
+            { key: 'full', text: 'full', value: 'full' },
+        ];
+    } else if (getTrackType(url) === 'BAM' || getTrackType(url) === 'BIGBED') {
+        return [
+            { key: 'dense', text: 'dense', value: 'dense' },
+            { key: 'squish', text: 'squish', value: 'squish' },
+        ];
+    } else {
+        return [
+            { key: 'dense', text: 'dense', value: 'dense' },
+            { key: 'squish', text: 'squish', value: 'squish' },
+            { key: 'full', text: 'full', value: 'full' },
+        ];
+    }
+};
 
+const getDefaultDisplayMode = (url: string): string | undefined => {
+    if (getTrackType(url) === 'BIGWIG') {
+        return DEFAULT_BIGWIG_DISPLAYMODE;
+    } else if (getTrackType(url) === 'BIGBED') {
+        return DEFAULT_BIGBED_DISPLAYMODE;
+    } else if (getTrackType(url) === 'BAM') {
+        return DEFAULT_BAM_DISPLAYMODE;
+    } else {
+        return undefined;
+    }
+};
+const getTrackType = (url: string): string | undefined => {
+    if (url.toLowerCase().includes('.bigwig') || url.toLowerCase().includes('.bw')) {
+        return TrackType.BIGWIG;
+    } else if (url.toLowerCase().includes('.bigbed') || url.toLowerCase().includes('.bb')) {
+        return TrackType.BIGBED;
+    } else if (url.toLowerCase().includes('.bam')) {
+        return TrackType.BAM;
+    } else {
+        return undefined;
+    }
+};
 const AddTrack: React.FC<AddTrackProps> = (props) => {
     const [title, setTitle] = useState<string>('');
     const [displayMode, setDisplayMode] = useState<string>();
@@ -15,7 +62,17 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
     const [testing, setTesting] = useState<boolean>(false);
     const onAccept = () => {
         if (url.startsWith('gs://') || baiUrl) {
-            props.onAccept && props.onAccept([{ url, domain: props.domain, baiUrl, displayMode, color, title }]);
+            props.onAccept &&
+                props.onAccept([
+                    {
+                        url,
+                        domain: props.domain,
+                        baiUrl,
+                        displayMode: displayMode || getDefaultDisplayMode(url),
+                        color,
+                        title,
+                    },
+                ]);
             return;
         }
         setTesting(true);
@@ -39,7 +96,16 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
             .then(() => {
                 setError('');
                 setTesting(false);
-                props.onAccept && props.onAccept([{ url, domain: props.domain, displayMode, color, title }]);
+                props.onAccept &&
+                    props.onAccept([
+                        {
+                            url,
+                            domain: props.domain,
+                            displayMode: displayMode || getDefaultDisplayMode(url),
+                            color,
+                            title,
+                        },
+                    ]);
             })
             .catch((e) => {
                 setError(url);
@@ -48,7 +114,7 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
     };
     return (
         <>
-            <Modal trigger={<Button onClick={props.onOpen}> Add Custom Track</Button>} open={props.open}>
+            <Modal trigger={<Button onClick={props.onOpen}> Add Custom Track</Button>} open={props.open} onClose={props.onClose} closeOnEscape={props.open}>
                 <Modal.Header>Add Custom Track</Modal.Header>
                 <Modal.Content>
                     {testing ? (
@@ -96,11 +162,7 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
                                     onChange={(_, data) => {
                                         setDisplayMode(data.value as string);
                                     }}
-                                    options={[
-                                        { key: 'dense', text: 'dense', value: 'dense' },
-                                        { key: 'squish', text: 'squish', value: 'squish' },
-                                        { key: 'full', text: 'full', value: 'full' },
-                                    ]}
+                                    options={getTrackDisplayModes(url)}
                                 />
                                 <br />
                                 <br />
