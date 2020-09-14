@@ -27,17 +27,20 @@ export const getTrackDisplayModes = (url: string): { key: string; text: string; 
         return [
             { key: 'dense', text: 'dense', value: 'dense' },
             { key: 'full', text: 'full', value: 'full' },
+            { key: 'hide', text: 'hide', value: 'hide' },
         ];
     } else if (getTrackType(url) === 'BAM' || getTrackType(url) === 'BIGBED') {
         return [
             { key: 'dense', text: 'dense', value: 'dense' },
             { key: 'squish', text: 'squish', value: 'squish' },
+            { key: 'hide', text: 'hide', value: 'hide' },
         ];
     } else {
         return [
             { key: 'dense', text: 'dense', value: 'dense' },
             { key: 'squish', text: 'squish', value: 'squish' },
             { key: 'full', text: 'full', value: 'full' },
+            { key: 'hide', text: 'hide', value: 'hide' },
         ];
     }
 };

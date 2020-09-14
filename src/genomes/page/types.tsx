@@ -10,7 +10,7 @@ export type GenomeBrowserPageProps = {
 
 export type AssemblyInfo = { species: string; name: string; description: string };
 
-export type SessionModalProps = { open: boolean; data: string; onClose: () => void; warn: number };
+export type SessionModalProps = { open: boolean; data: string; onClose: () => void; warn?: number };
 
 export type MetadataModalProps = {
     open: boolean;

@@ -49,6 +49,7 @@ const TrackConfigs: React.FC<TrackConfigsProps> = (props) => {
                                                         title: t.title,
                                                         color: t.color!!,
                                                         url: t.track.url,
+                                                        baiUrl: t.track.baiUrl,
                                                         domain: {
                                                             chromosome: t.track.chr1,
                                                             start: t.track.start,

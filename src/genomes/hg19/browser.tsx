@@ -140,35 +140,36 @@ const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => {
                         trackMargin={12}
                     />
                 </GraphQLTrackSet>
-                {customTracks && (
-                    <GraphQLTrackSet
-                        tracks={customTracks.map((x) => ({
-                            ...x.track,
-                            chr1: props.domain.chromosome!,
-                            start: props.domain.start,
-                            end: props.domain.end,
-                        }))}
-                        endpoint={'https://ga.staging.wenglab.org/graphql'}
-                        width={2000}
-                        transform={'translate(0,0)'}
-                        id={`customtrack,${customTracks.map((x, i) => i).join(',')}`}
-                    >
-                        {customTracks.map((track, i) => (
+                {customTracks &&
+                    customTracks.map((track, i) => (
+                        <GraphQLTrackSet
+                            tracks={[
+                                {
+                                    ...track.track,
+                                    chr1: props.domain.chromosome!,
+                                    start: props.domain.start,
+                                    end: props.domain.end,
+                                },
+                            ]}
+                            endpoint="https://ga.staging.wenglab.org/graphql"
+                            width={2000}
+                            transform="translate(0,0)"
+                            id={`customtrack,${i}`}
+                            key={`ct${i}`}
+                        >
                             <CustomTrack
-                                key={`ct${i}`}
                                 width={2000}
                                 height={50}
                                 id={`ct${i}`}
                                 transform="translate(0,0)"
-                                title={track.title}
                                 displayMode={track.displayMode}
+                                title={track.title}
                                 color={track.color}
                                 domain={props.domain}
                             />
-                        ))}
-                    </GraphQLTrackSet>
-                )}
-                 {props.customFiles &&
+                        </GraphQLTrackSet>
+                    ))}
+                {props.customFiles &&
                     props.customFiles.map((ufile, i) => {
                         return (
                             <UploadedFile

@@ -202,22 +202,24 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         }}
                     />
                 </GraphQLLDTrack>
-                {customTracks && (
-                    <GraphQLTrackSet
-                        tracks={customTracks.map((x) => ({
-                            ...x.track,
-                            chr1: props.domain.chromosome!,
-                            start: props.domain.start,
-                            end: props.domain.end,
-                        }))}
-                        endpoint="https://ga.staging.wenglab.org/graphql"
-                        width={2000}
-                        transform="translate(0,0)"
-                        id={`customtrack,${customTracks.map((_, i) => i).join(',')}`}
-                    >
-                        {customTracks.map((track, i) => (
+                {customTracks &&
+                    customTracks.map((track, i) => (
+                        <GraphQLTrackSet
+                            tracks={[
+                                {
+                                    ...track.track,
+                                    chr1: props.domain.chromosome!,
+                                    start: props.domain.start,
+                                    end: props.domain.end,
+                                },
+                            ]}
+                            endpoint="https://ga.staging.wenglab.org/graphql"
+                            width={2000}
+                            transform="translate(0,0)"
+                            id={`customtrack,${i}`}
+                            key={`ct${i}`}
+                        >
                             <CustomTrack
-                                key={`ct${i}`}
                                 width={2000}
                                 height={50}
                                 id={`ct${i}`}
@@ -227,9 +229,8 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 color={track.color}
                                 domain={props.domain}
                             />
-                        ))}
-                    </GraphQLTrackSet>
-                )}
+                        </GraphQLTrackSet>
+                    ))}
                 {props.customFiles &&
                     props.customFiles.map((ufile, i) => {
                         return (

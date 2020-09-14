@@ -12,7 +12,7 @@ const SessionModal: React.FC<SessionModalProps> = (props) => {
             <Modal.Content>
                 <React.Fragment>
                     <Modal.Description>
-                        {props.warn !== 0 && (
+                        {props.warn && props.warn !== 0 && (
                             <Message negative>
                                 You are viewing uploaded local files. To save these as a part of your session, you must
                                 host them online. Only custom files with URLs have been saved.
