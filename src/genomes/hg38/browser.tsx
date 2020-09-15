@@ -1,5 +1,5 @@
 import { Hg38BrowserProps } from './types';
-import React, { useState } from 'react';
+import React from 'react';
 import {
     RulerTrack,
     GraphQLTrackSet,
@@ -39,10 +39,10 @@ const tracks = (range: Domain) => [
 ];
 
 const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
-    const [anchor, setAnchor] = useState<string>();
+   
     let customTracks = props.customTracks?.filter((ct) => !ct.track.baiUrl);
     let bamCustomTracks = props.customTracks?.filter((ct) => ct.track.baiUrl);
-
+    
     return (
         <Container style={{ width: '90%' }}>
             <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>
@@ -147,9 +147,9 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                     domain={props.domain}
                     width={2000}
                     transform={'translate (0,0)'}
-                    id={'eur_ldtrack'}
+                    id={'hg38_ldtrack'}
                     population={['EUR', 'AMR', 'ASN', 'AFR']}
-                    anchor={anchor}
+                    anchor={props.anchor}
                     assembly={'hg38'}
                     endpoint={'https://snps.staging.wenglab.org/graphql'}
                 >
@@ -162,7 +162,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         id={'eur'}
                         title={'common EUROPEAN SNPs with LD'}
                         onVariantClick={(snp) => {
-                            setAnchor(snp.rsId);
+                            props.setAnchor && props.setAnchor(snp.rsId);
                         }}
                     />
                     <WrappedLDTrack
@@ -174,7 +174,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         id={'amr'}
                         title={'common AMERICAN SNPs with LD'}
                         onVariantClick={(snp) => {
-                            setAnchor(snp.rsId);
+                            props.setAnchor && props.setAnchor(snp.rsId);
                         }}
                     />
                     <WrappedLDTrack
@@ -186,7 +186,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         id={'asn'}
                         title={'common ASIAN SNPs with LD'}
                         onVariantClick={(snp) => {
-                            setAnchor(snp.rsId);
+                            props.setAnchor && props.setAnchor(snp.rsId);
                         }}
                     />
                     <WrappedLDTrack
@@ -198,7 +198,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         id={'afr'}
                         title={'common AFRICAN SNPs with LD'}
                         onVariantClick={(snp) => {
-                            setAnchor(snp.rsId);
+                            props.setAnchor && props.setAnchor(snp.rsId);
                         }}
                     />
                 </GraphQLLDTrack>
@@ -217,7 +217,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                             width={2000}
                             transform="translate(0,0)"
                             id={`customtrack,${i}`}
-                            key={`ct${i}`}
+                            key={`ct${track.track.url}`}
                         >
                             <CustomTrack
                                 width={2000}

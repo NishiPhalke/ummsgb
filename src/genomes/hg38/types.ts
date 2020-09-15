@@ -5,5 +5,7 @@ export type Hg38BrowserProps = {
     svgRef?: React.RefObject<SVGSVGElement>;
     onDomainChanged: (domain: Domain) => void;
     customTracks?: customTrack[];
+    anchor?: string;
+    setAnchor?: (snp: string) => void;
     customFiles?: { file: File; title: string; displayMode?: string }[];
 };

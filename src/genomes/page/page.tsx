@@ -25,7 +25,7 @@ const parseDomain = (domain: string) => ({
 const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const uploadTrackList = React.useRef<HTMLInputElement>(null);
     const uploadTrackFile = React.useRef<HTMLInputElement>(null);
-
+    const [anchor, setAnchor] = useState<string| undefined>(props.session?.anchor);
     const [domain, setDomain] = useState<Domain | undefined>(props.session && props.session.domain);
     const [assemblyInfo, setAssemblyInfoData] = useState<AssemblyInfo | null>(null);
     const [chromLength, setChromLength] = useState<number>(0);
@@ -139,7 +139,8 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const saveSession = () => {
         const sessionDetails = JSON.stringify({
             customTracks: customTracks,
-            domain: domain,
+            domain: domain,      
+            anchor: anchor
         });
         const location = window.location.protocol + '//' + window.location.host + window.location.pathname;
         setSessionData(location + '?session=' + encodeURIComponent(Buffer.from(sessionDetails).toString('base64')));
@@ -309,6 +310,8 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         domain={domain}
                         assembly={props.assembly}
                         onDomainChanged={onDomainChanged}
+                        anchor={anchor}
+                        setAnchor={setAnchor}
                         customTracks={
                             customTracks
                                 ? Object.values(customTracks).filter((ct) => ct.displayMode !== 'hide')

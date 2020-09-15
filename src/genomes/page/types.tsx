@@ -5,6 +5,7 @@ export type GenomeBrowserPageProps = {
     session?: {
         customTracks: Record<string, customTrack> | undefined;
         domain: Domain;
+        anchor?: string;
     };
 };
 
