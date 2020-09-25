@@ -9,13 +9,14 @@ import { Cytobands } from '../../components/cytobands';
 import { UCSCControls } from 'umms-gb';
 import { Container, Dimmer, Loader, Button } from 'semantic-ui-react';
 import { AddTrackModal } from '../../components/customtrack';
-import { downloadSVG } from './utils';
+import { downloadSVG, readBed } from './utils';
 import SessionModal from './sessionmodal';
 import MetadataModal from './metadatamodal';
 import MemoDefaultBrowser from './../default/default';
 import { RefSeqSearchBox } from './../../components/search';
 import TrackConfigs from './trackconfigs';
-
+import { GenomicRegionList, GenomicRegion } from 'ts-bedkit';
+import { GenomicRange } from 'ts-bedkit';
 const parseDomain = (domain: string) => ({
     chromosome: domain.split(':')[0],
     start: +domain.split(':')[1].split('-')[0].replace(/,/g, ''),
@@ -25,7 +26,11 @@ const parseDomain = (domain: string) => ({
 const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const uploadTrackList = React.useRef<HTMLInputElement>(null);
     const uploadTrackFile = React.useRef<HTMLInputElement>(null);
-    const [anchor, setAnchor] = useState<string| undefined>(props.session?.anchor);
+    const uploadBedFile = React.useRef<HTMLInputElement>(null);
+    const [anchor, setAnchor] = useState<string | undefined>(props.session?.anchor);
+    const [customPeaks, setCustomPeaks] = useState<
+        Record<string, { peaks: any | []; title: string; displayMode?: string }>
+    >();
     const [domain, setDomain] = useState<Domain | undefined>(props.session && props.session.domain);
     const [assemblyInfo, setAssemblyInfoData] = useState<AssemblyInfo | null>(null);
     const [chromLength, setChromLength] = useState<number>(0);
@@ -46,7 +51,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch('http://35.201.115.1/graphql', {
+            const response = await fetch('https://ga.staging.wenglab.org/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
                     query: ASSEMBLY_INFO_QUERY,
@@ -60,7 +65,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     }, [props.assembly]);
     useEffect(() => {
         const getSingleTranscriptCoordinates = async () => {
-            const response = await fetch('http://35.201.115.1/graphql', {
+            const response = await fetch('https://ga.staging.wenglab.org/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
                     query: SINGLE_TRANSCRIPT_QUERY,
@@ -101,7 +106,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
     useEffect(() => {
         const fetchChromLength = async (chrom: string) => {
-            const response = await fetch('http://35.201.115.1/graphql', {
+            const response = await fetch('https://ga.staging.wenglab.org/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
                     query: CHROM_LENGTHS_QUERY,
@@ -139,8 +144,8 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const saveSession = () => {
         const sessionDetails = JSON.stringify({
             customTracks: customTracks,
-            domain: domain,      
-            anchor: anchor
+            domain: domain,
+            anchor: anchor,
         });
         const location = window.location.protocol + '//' + window.location.host + window.location.pathname;
         setSessionData(location + '?session=' + encodeURIComponent(Buffer.from(sessionDetails).toString('base64')));
@@ -149,17 +154,19 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
     const onDomainChanged = React.useCallback(
         (d: Domain) => {
+            const start = d.start < 0 ? 0 : d.start;
+            const end = d.end > chromLength ? chromLength : d.end;
             if (d.chromosome && d.chromosome !== domain!!.chromosome) {
                 setDomain({
                     chromosome: d.chromosome,
-                    start: d.start < 0 ? 0 : d.start,
-                    end: d.end > chromLength ? chromLength : d.end,
+                    start,
+                    end,
                 });
             } else {
                 setDomain({
                     chromosome: domain!!.chromosome,
-                    start: d.start < 0 ? 0 : d.start,
-                    end: d.end > chromLength ? chromLength : d.end,
+                    start,
+                    end,
                 });
             }
         },
@@ -252,6 +259,40 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         }
     };
 
+    const onBedParsed = (regions: {chromosome: string, start: number, end: number}[], title: string) => {
+       
+        const regionList = new GenomicRegionList(
+            regions.map((x: {chromosome: string, start: number, end: number}) => new GenomicRegion(x.chromosome, x.start, x.end))
+        );
+        const peaks: any = regionList.regions[domain?.chromosome!!];      
+        let cPeaks: Record<string, { peaks: any | []; title: string; displayMode?: string }> = {};
+        if (customPeaks !== undefined) {
+            cPeaks = { ...customPeaks };
+            cPeaks[title] = { peaks, title };
+        } else {
+            cPeaks[title] = { peaks, title };
+        }
+        setCustomPeaks(cPeaks);
+    };
+    const formatBEDRegion = (chromosome: string) => (region: { start: number, end: number}) => ({
+        chr: chromosome,
+        start: region.start,
+        end: region.end,
+    });
+
+    const bedFileReceived = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const fileList = Array.from(e.target.files!!);
+            readBed(
+                fileList[0],
+                (regions: any) => onBedParsed(regions, fileList[0].name),
+                () => {
+                    console.log('error occurred');
+                }
+            );
+        }
+    };
+
     const svg = useRef<SVGSVGElement>(null);
     const download = downloadSVG(svg, 'tracks.svg');
 
@@ -269,6 +310,29 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     const BrowserComponent =
         (genomeConfig[props.assembly] && genomeConfig[props.assembly].browser) || MemoDefaultBrowser;
     let SearchBoxComponent = genomeConfig[props.assembly] ? SearchBox : RefSeqSearchBox;
+    const cFiles =
+        customFiles &&
+        Object.values(customFiles).map((cf) => {
+            return {
+                displayMode: cf.displayMode,
+                title: cf.title,
+            };
+        });
+    const cPeaks =
+        customPeaks &&
+        Object.values(customPeaks).map((cf) => {
+            return {
+                displayMode: cf.displayMode,
+                title: cf.title,
+            };
+        });
+    let configFiles = undefined;
+    if (cFiles) {
+        configFiles = [...cFiles];
+    }
+    if (cPeaks) {
+        configFiles = configFiles ? [...configFiles, ...cPeaks] : [...cPeaks];
+    }
     return (
         <>
             <GenomePageMenu />
@@ -314,13 +378,30 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         setAnchor={setAnchor}
                         customTracks={
                             customTracks
-                                ? Object.values(customTracks).filter((ct) => ct.displayMode !== 'hide')
+                                ? Object.values(customTracks) //.filter((ct) => ct.displayMode !== 'hide')
                                 : undefined
                         }
                         svgRef={svg}
                         customFiles={
                             customFiles
                                 ? Object.values(customFiles).filter((cf) => cf.displayMode !== 'hide')
+                                : undefined
+                        }
+                        customPeaks={
+                            customPeaks
+                                ? Object.values(customPeaks)
+                                      .map((cp) => {
+                                          let c =
+                                              cp.peaks &&
+                                              cp.peaks
+                                                  .findInRange(new GenomicRange(domain!!.start, domain!!.end))
+                                                  .map(formatBEDRegion(domain!!.chromosome!!));
+                                          return {
+                                              ...cp,
+                                              peaks: c && c.length > 0 ? c : [],
+                                          };
+                                      })
+                                      .filter((cf) => cf.displayMode !== 'hide')
                                 : undefined
                         }
                     />
@@ -366,6 +447,10 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         onChange={trackFileReceived}
                         multiple
                     />
+                    <Button onClick={() => uploadBedFile && uploadBedFile.current && uploadBedFile.current!!.click()}>
+                        Upload Bed File
+                    </Button>
+                    <input name={'file'} type={'file'} ref={uploadBedFile} hidden onChange={bedFileReceived} multiple />
                     <div style={{ height: '40px' }} />
                     <SessionModal
                         open={saveSessionModalShown}
@@ -375,14 +460,23 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                     />
                     <br />
                     <TrackConfigs
-                        files={customFiles}
+                        files={configFiles}
                         tracks={customTracks ? Object.values(customTracks) : undefined}
                         onSelect={onModalAccept}
                         onFileSelect={(title: string, displayMode: string) => {
                             if (customFiles) {
                                 let cFiles = { ...customFiles };
-                                cFiles[title] = { ...cFiles[title], displayMode };
-                                setCustomFiles(cFiles);
+                                if (cFiles[title]) {
+                                    cFiles[title] = { ...cFiles[title], displayMode };
+                                    setCustomFiles(cFiles);
+                                }
+                            }
+                            if (customPeaks) {
+                                let cPeaks = { ...customPeaks };
+                                if (cPeaks[title]) {
+                                    cPeaks[title] = { ...cPeaks[title], displayMode };
+                                    setCustomPeaks(cPeaks);
+                                }
                             }
                         }}
                     />

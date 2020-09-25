@@ -13,6 +13,9 @@ import {
     GraphQLLDTrack,
     WrappedLDTrack,
     BamTrack,
+    WrappedDenseBigBed,
+    StackedTracks,
+    WrappedSquishBigBed,
 } from 'umms-gb';
 import {
     dnasetrack,
@@ -203,34 +206,36 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                     />
                 </GraphQLLDTrack>
                 {customTracks &&
-                    customTracks.map((track, i) => (
-                        <GraphQLTrackSet
-                            tracks={[
-                                {
-                                    ...track.track,
-                                    chr1: props.domain.chromosome!,
-                                    start: props.domain.start,
-                                    end: props.domain.end,
-                                },
-                            ]}
-                            endpoint="https://ga.staging.wenglab.org/graphql"
-                            width={2000}
-                            transform="translate(0,0)"
-                            id={`customtrack,${i}`}
-                            key={`ct${track.track.url}`}
-                        >
-                            <CustomTrack
+                    customTracks
+                        .filter((ct) => ct.displayMode !== 'hide')
+                        .map((track, i) => (
+                            <GraphQLTrackSet
+                                tracks={[
+                                    {
+                                        ...track.track,
+                                        chr1: props.domain.chromosome!,
+                                        start: props.domain.start,
+                                        end: props.domain.end,
+                                    },
+                                ]}
+                                endpoint="https://ga.staging.wenglab.org/graphql"
                                 width={2000}
-                                height={50}
-                                id={`ct${i}`}
                                 transform="translate(0,0)"
-                                displayMode={track.displayMode}
-                                title={track.title}
-                                color={track.color}
-                                domain={props.domain}
-                            />
-                        </GraphQLTrackSet>
-                    ))}
+                                id={`customtrack,${i}`}
+                                key={`ct${track.track.url}`}
+                            >
+                                <CustomTrack
+                                    width={2000}
+                                    height={50}
+                                    id={`ct${i}`}
+                                    transform="translate(0,0)"
+                                    displayMode={track.displayMode}
+                                    title={track.title}
+                                    color={track.color}
+                                    domain={props.domain}
+                                />
+                            </GraphQLTrackSet>
+                        ))}
                 {props.customFiles &&
                     props.customFiles.map((ufile, i) => {
                         return (
@@ -256,6 +261,55 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                             </UploadedFile>
                         );
                     })}
+                {props.customPeaks &&
+                    props.customPeaks.map(
+                        (
+                            peak: {
+                                peaks: { chr: string; start: number; end: number }[] | [];
+                                title: string;
+                                displayMode?: string;
+                            },
+                            i: number
+                        ) => {
+                            return (
+                                <StackedTracks
+                                    transform={'translate (0,0)'}
+                                    key={peak.title + i}
+                                    id={peak.title + i}
+                                    height={0}
+                                >
+                                    {peak.displayMode === 'squish' ? (
+                                        <WrappedSquishBigBed
+                                            title={peak.title}
+                                            width={2000}
+                                            height={50}
+                                            rowHeight={10}
+                                            transform={'translate (0,0)'}
+                                            id={peak.title + i}
+                                            domain={props.domain}
+                                            color={'#ff0000'}
+                                            data={peak.peaks}
+                                            titleSize={12}
+                                            trackMargin={12}
+                                        />
+                                    ) : (
+                                        <WrappedDenseBigBed
+                                            title={peak.title}
+                                            width={2000}
+                                            height={50}
+                                            transform={'translate (0,0)'}
+                                            id={peak.title + i}
+                                            domain={props.domain}
+                                            color={'black'}
+                                            data={peak.peaks}
+                                            titleSize={12}
+                                            trackMargin={12}
+                                        />
+                                    )}
+                                </StackedTracks>
+                            );
+                        }
+                    )}
                 {bamCustomTracks?.map((bt, i) => {
                     return (
                         <BamTrack

@@ -8,4 +8,5 @@ export type Hg38BrowserProps = {
     anchor?: string;
     setAnchor?: (snp: string) => void;
     customFiles?: { file: File; title: string; displayMode?: string }[];
+    customPeaks?: { peaks: { chr: string; start: number; end: number }[] | []; title: string; displayMode?: string }[];
 };

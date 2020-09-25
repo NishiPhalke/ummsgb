@@ -28,7 +28,7 @@ const GenomePage: React.FC = () => {
     const [q, setQ] = useState<string>('');
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch('http://35.201.115.1/graphql', {
+            const response = await fetch('https://ga.staging.wenglab.org/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
                     query: ASSEMBLY_QUERY,

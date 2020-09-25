@@ -1,6 +1,6 @@
 export const ASSEMBLY_QUERY = `
-query Assemblies($name: String) {
-    genomicAssemblies(name: $name) {
+query Assemblies {
+    genomicAssemblies {
       name,
       species,
       description

@@ -91,7 +91,14 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
             );
         default:
             return (
-                <WrappedTrack width={props.width} height={props.height} noData>
+                <WrappedTrack
+                    width={props.width}
+                    title={props.title}
+                    height={props.height}
+                    noData
+                    titleSize={12}
+                    trackMargin={12}
+                >
                     <EmptyTrack {...(props || {})} />
                 </WrappedTrack>
             );

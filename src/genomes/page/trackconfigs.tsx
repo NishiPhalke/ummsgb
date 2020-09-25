@@ -13,7 +13,7 @@ const TrackConfigs: React.FC<TrackConfigsProps> = (props) => {
         ? props.files
             ? [
                   ...props.tracks,
-                  ...Object.values(props.files).map((f) => {
+                  ...props.files.map((f) => {
                       return { title: f.title, displayMode: f.displayMode };
                   }),
               ]

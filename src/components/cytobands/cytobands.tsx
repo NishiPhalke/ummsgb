@@ -6,7 +6,7 @@ const CytobandsR: React.FC<CytobandsRProps> = (props) => {
     const [cytobands, setCytobands] = useState<Cytoband[] | null>(null);
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetch('http://35.201.115.1/graphql', {
+            const response = await fetch('https://ga.staging.wenglab.org/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
                     query: CYTOBAND_QUERY,

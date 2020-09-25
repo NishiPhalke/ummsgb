@@ -1,4 +1,6 @@
 import { DEFAULT_BIGWIG_DISPLAYMODE, TrackType, DEFAULT_BAM_DISPLAYMODE, DEFAULT_BIGBED_DISPLAYMODE } from './types';
+import { inflate } from 'pako';
+
 const svgData = (_svg: any): string => {
     let svg = _svg.cloneNode(true);
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
@@ -59,7 +61,11 @@ export const getDefaultDisplayMode = (url: string): string | undefined => {
 const getTrackType = (url: string): string | undefined => {
     if (url.toLowerCase().includes('.bigwig') || url.toLowerCase().includes('.bw')) {
         return TrackType.BIGWIG;
-    } else if (url.toLowerCase().includes('.bigbed') || url.toLowerCase().includes('.bb')) {
+    } else if (
+        url.toLowerCase().includes('.bigbed') ||
+        url.toLowerCase().includes('.bb') ||
+        url.toLowerCase().includes('.bed')
+    ) {
         return TrackType.BIGBED;
     } else if (url.toLowerCase().includes('.bam')) {
         return TrackType.BAM;
@@ -67,3 +73,36 @@ const getTrackType = (url: string): string | undefined => {
         return undefined;
     }
 };
+
+const parseBed = (e: string) => {    
+    const lines = e.split('\n');
+    return lines
+        .map((l: string) => l.split('\t'))
+        .filter((l: string[]) => l.length >= 3)
+        .map((r: string[]) => ({
+            chromosome: r[0],
+            start: +r[1],
+            end: +r[2],
+        }))
+        .filter((r: { start: number, end: number}) => !isNaN(r.start) && !isNaN(r.end));
+};
+
+export const readBed =(file: File, onComplete: (regions: {chromosome: string, start: number, end: number}[]) => void, onError: (e: Error) => void) =>{
+    const textReader = new FileReader();
+    textReader.onload = (e: any) => {
+        const newRegions = parseBed(e.target.result);
+        if (newRegions.length > 0) onComplete(newRegions);
+        else {
+            const binaryReader = new FileReader();
+            binaryReader.onload = (e) => {
+                try {
+                    e.target && onComplete(parseBed(new TextDecoder().decode(inflate(e.target.result as any))));
+                } catch (ex) {
+                    onError(ex);
+                }
+            };
+            binaryReader.readAsBinaryString(file);
+        }
+    };
+    textReader.readAsText(file);
+}

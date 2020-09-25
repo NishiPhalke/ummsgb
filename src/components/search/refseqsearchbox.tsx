@@ -19,7 +19,7 @@ const RefSeqSearchBox: React.FC<RefSeqSearchBoxProps> = (props) => {
     }, [results, props, selectedGene]);
     const onSearchChange = useCallback(
         async (e, { value }) => {
-            const response = await fetch('http://35.201.115.1/graphql', {
+            const response = await fetch('https://ga.staging.wenglab.org/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
                     query: REFSEQ_AUTOCOMPLETE_QUERY,

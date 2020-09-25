@@ -28,7 +28,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                     domain={props.domain}
                     transform={'translate (0,0)'}
                     assembly={props.assembly}
-                    endpoint={'http://35.201.115.1/graphql'}
+                    endpoint={'https://ga.staging.wenglab.org/graphql'}
                     id="refseqgenes"
                     queryType={'refseqgenes'}
                 >
@@ -47,7 +47,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                     domain={props.domain}
                     transform={'translate (0,0)'}
                     assembly={props.assembly}
-                    endpoint={'http://35.201.115.1/graphql'}
+                    endpoint={'https://ga.staging.wenglab.org/graphql'}
                     id="refseqxenogenes"
                     queryType={'refseqxenogenes'}
                 >
