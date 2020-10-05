@@ -42,7 +42,9 @@ const TrackConfigs: React.FC<TrackConfigsProps> = (props) => {
                                         selection
                                         value={t.displayMode || getDefaultDisplayMode(t.track ? t.track.url : t.title)}
                                         onChange={(_, data) => {
-                                            !t.track && props.onFileSelect(t.title, data.value as string);
+                                            !t.track &&
+                                                props.onFileSelect &&
+                                                props.onFileSelect(t.title, data.value as string);
                                             t.track &&
                                                 props.onSelect([
                                                     {

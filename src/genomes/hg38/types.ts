@@ -4,9 +4,12 @@ export type Hg38BrowserProps = {
     domain: Domain;
     svgRef?: React.RefObject<SVGSVGElement>;
     onDomainChanged: (domain: Domain) => void;
-    customTracks?: customTrack[];
     anchor?: string;
     setAnchor?: (snp: string) => void;
-    customFiles?: { file: File; title: string; displayMode?: string }[];
-    customPeaks?: { peaks: { chr: string; start: number; end: number }[] | []; title: string; displayMode?: string }[];
+    customTracks?: Record<string, customTrack>;
+    customFiles?: Record<string, { file: File; title: string; displayMode?: string }>;
+    customPeaks?: Record<string, { peaks: any | []; title: string; displayMode?: string }>;
+    setCustomTracks?: (ct: Record<string, customTrack>) => void;
+    setCustomFiles?: (cf: Record<string, { file: File; title: string; displayMode?: string }>) => void;
+    setCustomPeaks?: (cp: Record<string, { peaks: any | []; title: string; displayMode?: string }>) => void;
 };

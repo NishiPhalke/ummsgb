@@ -18,6 +18,10 @@ export const dnasetrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://data.genomealmanac.org/dnase.hg38.sum.bigWig',
     preRenderedWidth: 1850,
+    id: 'dnase',
+    title: 'Aggregated DNase-seq from ENCODE',
+    color: '#06da93',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -31,6 +35,10 @@ export const h3k4me3track = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://data.genomealmanac.org/h3k4me3.hg38.sum.bigWig',
     preRenderedWidth: 1850,
+    id: 'H3K4me3',
+    title: 'Aggregated H3K4me3 ChIP-seq from ENCODE',
+    color: '#ff0000',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -44,6 +52,10 @@ export const h3k27actrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://data.genomealmanac.org/h3k27ac.hg38.sum.bigWig',
     preRenderedWidth: 1850,
+    id: 'H3K27ac',
+    title: 'Aggregated H3K27ac ChIP-seq from ENCODE',
+    color: '#ffcd00',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -57,6 +69,10 @@ export const ctcftrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://data.genomealmanac.org/ctcf.hg38.sum.bigWig',
     preRenderedWidth: 1850,
+    id: 'ctcf',
+    title: 'Aggregated CTCF ChIP-seq from ENCODE',
+    color: '#00b0f0',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -70,6 +86,10 @@ export const conservationtrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://data.genomealmanac.org/hg38.phyloP100way.bigWig',
     preRenderedWidth: 1850,
+    id: 'phyloP',
+    title: 'phyloP 100-way conservation',
+    color: '#000088',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -83,6 +103,10 @@ export const rampageplus = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://data.genomealmanac.org/rampage.plus.bigWig',
     preRenderedWidth: 1850,
+    id: 'rampplus',
+    title: 'rampage plus',
+    color: '#000000',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -96,4 +120,8 @@ export const rampageminus = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://data.genomealmanac.org/rampage.minus.bigWig',
     preRenderedWidth: 1850,
+    id: 'rampminus',
+    title: 'rampage minus',
+    color: '#000000',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });

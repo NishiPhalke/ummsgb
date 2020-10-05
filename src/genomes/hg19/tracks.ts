@@ -18,6 +18,10 @@ export const dnasetrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://gcp.wenglab.org/dnase.hg19.sum.bigWig',
     preRenderedWidth: 1850,
+    id: 'dnase',
+    title: 'Aggregated DNase-seq from ENCODE',
+    color: '#ff0000',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -31,6 +35,10 @@ export const h3k4me3track = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'http://users.wenglab.org/pratth/h3k4me3.hg19.sum.bigWig',
     preRenderedWidth: 1850,
+    id: 'h3k4me3',
+    title: 'Aggregated h3k4me3 chip-seq  from ENCODE',
+    color: '#ff0000',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -44,6 +52,10 @@ export const h3k27actrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'http://users.wenglab.org/pratth/h3k27ac.hg19.sum.bigWig',
     preRenderedWidth: 1850,
+    id: 'h3k27ac',
+    title: 'Aggregated H3K27ac ChIP-seq from ENCODE',
+    color: '#ffcd00',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -57,6 +69,10 @@ export const ctcftrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'http://users.wenglab.org/pratth/ctcf.hg19.sum.bigWig',
     preRenderedWidth: 1850,
+    id: 'ctcf',
+    title: 'Aggregated CTCF ChIP-seq from ENCODE',
+    color: '#00b0f0',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -70,6 +86,10 @@ export const conservationtrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://gcp.wenglab.org/phyloP100way.hg19.bigWig',
     preRenderedWidth: 1850,
+    title: 'phyloP 100-way conservation',
+    id: 'phyloP',
+    color: '#000088',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -96,6 +116,10 @@ export const rampageplus = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'https://users.wenglab.org/pratth/rampage.hg19.plus.bigWig',
     preRenderedWidth: 1850,
+    title: 'rampage plus',
+    id: 'ramplus',
+    color: '#000000',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -109,4 +133,8 @@ export const rampageminus = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'https://users.wenglab.org/pratth/rampage.hg19.minus.bigWig',
     preRenderedWidth: 1850,
+    id: 'rampminus',
+    title: 'rampage minus',
+    color: '#000000',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });

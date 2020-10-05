@@ -49,15 +49,20 @@ const UploadedFile: React.FC<UploadedFileProps> = (props) => {
         };
         fetchData();
     }, [props.domain, props.file, props.width]);
-
     return (
         <>
-            <StackedTracks transform={props.transform} id={props.id} height={0} onHeightChanged={props.onHeightChanged}>
+            <StackedTracks
+                transform={props.transform}
+                id={props.id}
+                height={0}
+                onHeightChanged={props.onHeightChanged}
+                svgRef={props.svgRef}
+            >
                 {React.Children.map(props.children, (child: React.ReactNode, i: number) =>
                     isReactElement(child)
                         ? data
                             ? React.cloneElement(child, { ...child.props, data: data, loading, error })
-                            : React.cloneElement(child, { ...child.props, loading: true, error })
+                            : React.cloneElement(child, { ...child.props, loading, error })
                         : child
                 )}
             </StackedTracks>

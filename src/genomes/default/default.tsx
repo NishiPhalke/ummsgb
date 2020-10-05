@@ -21,7 +21,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
     return (
         <Container style={{ width: '90%' }}>
             <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>
-                <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
+                <WrappedTrack id={'ruler'} width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
                     <RulerTrack width={2000} height={50} {...(props || {})} />
                 </WrappedTrack>
                 <GraphQLTranscriptTrack

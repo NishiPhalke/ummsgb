@@ -1,11 +1,15 @@
 import { Hg38BrowserProps } from './types';
-import React from 'react';
+import React, { useState } from 'react';
+import { customTrack } from '../types';
+import { GenomicRange } from 'ts-bedkit';
 import {
     RulerTrack,
     GraphQLTrackSet,
     WrappedFullBigWig,
     WrappedTrack,
     GraphQLTranscriptTrack,
+    EmptyTrack,
+    WrappedDenseBigWig,
     WrappedPackTranscriptTrack,
     GenomeBrowser,
     WrappedDenseBam,
@@ -27,9 +31,11 @@ import {
     rampageminus,
 } from './tracks';
 import { CustomTrack } from '../../components/customtrack';
-import { Container } from 'semantic-ui-react';
+import { Container, Dropdown } from 'semantic-ui-react';
 import { Domain } from '../types';
 import { UploadedFile } from './../../components/uploadedfile';
+import { getTrackDisplayModes, getTrackType } from '../page/utils';
+import { formatBEDRegion } from './../types';
 
 const tracks = (range: Domain) => [
     dnasetrack(range),
@@ -42,216 +48,308 @@ const tracks = (range: Domain) => [
 ];
 
 const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
-   
-    let customTracks = props.customTracks?.filter((ct) => !ct.track.baiUrl);
-    let bamCustomTracks = props.customTracks?.filter((ct) => ct.track.baiUrl);
-    
+    let defaultTracksModes: Record<string, string> = {};
+    tracks(props.domain).forEach((t) => {
+        let trackType = getTrackType(t.url);
+        defaultTracksModes[t.id] = trackType === 'BIGBED' ? 'dense' : trackType === 'BIGWIG' ? 'full' : 'dense';
+    });
+    defaultTracksModes['transcript'] = 'pack';
+    defaultTracksModes['ASN_LdTrack'] = 'dense';
+    defaultTracksModes['AFR_LdTrack'] = 'dense';
+    defaultTracksModes['EUR_LdTrack'] = 'dense';
+    defaultTracksModes['AMR_LdTrack'] = 'dense';
+
+    let noOfRows = +(+Math.round((tracks(props.domain).length + 5) / 5)).toFixed() + 1;
+    const [defaultTracks, setDefaultTracks] = useState<Record<string, string>>(defaultTracksModes);
+    const customTracks = props.customTracks && Object.values(props.customTracks).filter((ct) => !ct.track.baiUrl);
+    const bamCustomTracks = props.customTracks && Object.values(props.customTracks).filter((ct) => ct.track.baiUrl);
+
+    let pks: Record<
+        string,
+        { peaks: { chr: string; start: number; end: number }[] | []; title: string; displayMode?: string }
+    > = {};
+    props.customPeaks &&
+        Object.keys(props.customPeaks).forEach((cp) => {
+            const c =
+                props.customPeaks!![cp].peaks &&
+                props
+                    .customPeaks!![cp].peaks.findInRange(new GenomicRange(props.domain!!.start, props.domain!!.end))
+                    .map(formatBEDRegion(props.domain!!.chromosome!!));
+            pks[cp] = {
+                ...props.customPeaks!![cp],
+                peaks: c && c.length > 0 ? c : [],
+            };
+        });
     return (
         <Container style={{ width: '90%' }}>
-            <GenomeBrowser width="100%" innerWidth={2000} domain={props.domain} svgRef={props.svgRef}>
-                <WrappedTrack width={2000} height={50} title="scale" titleSize={12} trackMargin={12}>
-                    <RulerTrack width={2000} height={50} domain={props.domain} />
+            <GenomeBrowser
+                width="100%"
+                innerWidth={2000}
+                domain={props.domain}
+                svgRef={props.svgRef}
+                onModeChange={(id: string, mode: string) => {
+                    if (defaultTracks[id] !== undefined) {
+                        let dTracks = { ...defaultTracks };
+                        dTracks[id] = mode;
+                        setDefaultTracks(dTracks);
+                    } else if (props.customFiles && props.customFiles[id]) {
+                        let cf: Record<string, { file: File; title: string; displayMode?: string }> = {
+                            ...props.customFiles,
+                        };
+
+                        cf[id] = {
+                            ...cf[id],
+                            displayMode: mode,
+                        };
+                        props.setCustomFiles && props.setCustomFiles(cf);
+                    } else if (props.customPeaks && props.customPeaks[id]) {
+                        let cf: Record<string, { peaks: any | []; title: string; displayMode?: string }> = {
+                            ...props.customPeaks,
+                        };
+                        cf[id] = {
+                            ...cf[id],
+                            displayMode: mode,
+                        };
+                        props.setCustomPeaks && props.setCustomPeaks(cf);
+                    } else {
+                        console.log(id, id);
+                        let ct: Record<string, customTrack> = { ...props.customTracks };
+
+                        ct[id] = {
+                            ...ct[id],
+                            displayMode: mode,
+                        };
+                        props.setCustomTracks && props.setCustomTracks(ct);
+                    }
+                }}
+            >
+                <WrappedTrack width={2000} height={70} title="scale" id="ruler" titleSize={12} trackMargin={12}>
+                    <RulerTrack width={2000} height={70} domain={props.domain} />
                 </WrappedTrack>
-                <GraphQLTranscriptTrack
-                    domain={props.domain}
-                    transform={'translate (0,0)'}
-                    assembly={'GRCh38'}
-                    endpoint={'https://ga.staging.wenglab.org/graphql'}
-                    id="g"
-                >
-                    <WrappedPackTranscriptTrack
-                        titleSize={12}
-                        trackMargin={12}
-                        title={'GENCODE v29 transcripts'}
-                        color="#8b0000"
-                        id="transcript_track"
-                        rowHeight={14}
-                        width={2000}
+                {defaultTracks['transcript'] === 'hide' ? (
+                    <WrappedTrack width={2000} height={0} id={'transcript'}>
+                        <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'transcript'} />
+                    </WrappedTrack>
+                ) : props.domain.end - props.domain.start <= 1000000 ? (
+                    <GraphQLTranscriptTrack
                         domain={props.domain}
-                    />
-                </GraphQLTranscriptTrack>
-                <GraphQLTrackSet
-                    tracks={tracks(props.domain)}
-                    transform={'translate (0,0)'}
-                    id={'hg38_tracks'}
-                    width={2000}
-                    endpoint={'https://ga.staging.wenglab.org/graphql'}
-                >
-                    <WrappedFullBigWig
-                        title="Aggregated DNase-seq from ENCODE"
+                        transform={'translate (0,0)'}
+                        assembly={'GRCh38'}
+                        endpoint={'https://ga.staging.wenglab.org/graphql'}
+                        id="transcript"
+                    >
+                        <WrappedPackTranscriptTrack
+                            titleSize={12}
+                            trackMargin={12}
+                            title={'GENCODE v29 transcripts'}
+                            color="#8b0000"
+                            id="transcript"
+                            rowHeight={14}
+                            width={2000}
+                            domain={props.domain}
+                        />
+                    </GraphQLTranscriptTrack>
+                ) : (
+                    <WrappedTrack id="emptytrack" width={2000} height={50}>
+                        <EmptyTrack
+                            id={'transcript'}
+                            height={50}
+                            width={2000}
+                            text={'Zoom in to view transcript track'}
+                            transform={'translate (0,0)'}
+                        />
+                    </WrappedTrack>
+                )}
+                {tracks(props.domain).map((t) => (
+                    <GraphQLTrackSet
+                        tracks={[
+                            {
+                                chr1: t.chr1,
+                                url: t.url,
+                                start: t.start,
+                                end: t.end,
+                                preRenderedWidth: t.preRenderedWidth,
+                                zoomLevel: t.zoomLevel,
+                            },
+                        ]}
+                        transform={'translate (0,0)'}
+                        id={t.id}
+                        key={t.id}
                         width={2000}
-                        height={50}
-                        id="dnase"
-                        color="#06da93"
-                        domain={props.domain}
-                        titleSize={12}
-                        trackMargin={12}
-                    />
-                    <WrappedFullBigWig
-                        title="Aggregated H3K4me3 ChIP-seq from ENCODE"
-                        width={2000}
-                        height={50}
-                        id="H3K4me3"
-                        color="#ff0000"
-                        domain={props.domain}
-                        titleSize={12}
-                        trackMargin={12}
-                    />
-                    <WrappedFullBigWig
-                        title="Aggregated H3K27ac ChIP-seq from ENCODE"
-                        width={2000}
-                        height={50}
-                        id="H3K27ac"
-                        color="#ffcd00"
-                        domain={props.domain}
-                        titleSize={12}
-                        trackMargin={12}
-                    />
-                    <WrappedFullBigWig
-                        title="Aggregated CTCF ChIP-seq from ENCODE"
-                        width={2000}
-                        height={50}
-                        id="ctcf"
-                        color="#00b0f0"
-                        domain={props.domain}
-                        titleSize={12}
-                        trackMargin={12}
-                    />
-                    <WrappedFullBigWig
-                        title="phyloP 100-way conservatio"
-                        width={2000}
-                        height={50}
-                        id="phyloP"
-                        color="#000088"
-                        domain={props.domain}
-                        titleSize={12}
-                        trackMargin={12}
-                    />
-                    <WrappedFullBigWig
-                        title="rampage plus"
-                        width={2000}
-                        height={50}
-                        id="ramplus"
-                        domain={props.domain}
-                        titleSize={12}
-                        trackMargin={12}
-                    />
-                    <WrappedFullBigWig
-                        title="rampage minus"
-                        width={2000}
-                        height={50}
-                        id="ramminus"
-                        domain={props.domain}
-                        titleSize={12}
-                        trackMargin={12}
-                    />
-                </GraphQLTrackSet>
-                <GraphQLLDTrack
-                    domain={props.domain}
-                    width={2000}
-                    transform={'translate (0,0)'}
-                    id={'hg38_ldtrack'}
-                    population={['EUR', 'AMR', 'ASN', 'AFR']}
-                    anchor={props.anchor}
-                    assembly={'hg38'}
-                    endpoint={'https://snps.staging.wenglab.org/graphql'}
-                >
-                    <WrappedLDTrack
-                        titleSize={12}
-                        trackMargin={12}
-                        height={100}
-                        domain={props.domain}
-                        width={2000}
-                        id={'eur'}
-                        title={'common EUROPEAN SNPs with LD'}
-                        onVariantClick={(snp) => {
-                            props.setAnchor && props.setAnchor(snp.rsId);
-                        }}
-                    />
-                    <WrappedLDTrack
-                        titleSize={12}
-                        trackMargin={12}
-                        height={100}
-                        domain={props.domain}
-                        width={2000}
-                        id={'amr'}
-                        title={'common AMERICAN SNPs with LD'}
-                        onVariantClick={(snp) => {
-                            props.setAnchor && props.setAnchor(snp.rsId);
-                        }}
-                    />
-                    <WrappedLDTrack
-                        height={100}
-                        titleSize={12}
-                        trackMargin={12}
-                        domain={props.domain}
-                        width={2000}
-                        id={'asn'}
-                        title={'common ASIAN SNPs with LD'}
-                        onVariantClick={(snp) => {
-                            props.setAnchor && props.setAnchor(snp.rsId);
-                        }}
-                    />
-                    <WrappedLDTrack
-                        height={100}
-                        titleSize={12}
-                        trackMargin={12}
-                        domain={props.domain}
-                        width={2000}
-                        id={'afr'}
-                        title={'common AFRICAN SNPs with LD'}
-                        onVariantClick={(snp) => {
-                            props.setAnchor && props.setAnchor(snp.rsId);
-                        }}
-                    />
-                </GraphQLLDTrack>
-                {customTracks &&
-                    customTracks
-                        .filter((ct) => ct.displayMode !== 'hide')
-                        .map((track, i) => (
-                            <GraphQLTrackSet
-                                tracks={[
-                                    {
-                                        ...track.track,
-                                        chr1: props.domain.chromosome!,
-                                        start: props.domain.start,
-                                        end: props.domain.end,
-                                    },
-                                ]}
-                                endpoint="https://ga.staging.wenglab.org/graphql"
+                        endpoint={'https://ga.staging.wenglab.org/graphql'}
+                    >
+                        {defaultTracks[t.id] === 'dense' ? (
+                            <WrappedDenseBigWig
+                                title={t.title}
                                 width={2000}
+                                height={80}
+                                id={t.id}
+                                color={t.color}
+                                domain={props.domain}
+                                titleSize={12}
+                                trackMargin={12}
+                            />
+                        ) : defaultTracks[t.id] === 'hide' ? (
+                            <WrappedTrack width={2000} height={0} id={t.id}>
+                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={t.id} />
+                            </WrappedTrack>
+                        ) : (
+                            <WrappedFullBigWig
+                                title={t.title}
+                                width={2000}
+                                height={80}
+                                id={t.id}
+                                color={t.color}
+                                domain={props.domain}
+                                titleSize={12}
+                                trackMargin={12}
+                            />
+                        )}
+                    </GraphQLTrackSet>
+                ))}
+                {props.domain.end - props.domain.start <= 5000000 ? (
+                    <GraphQLLDTrack
+                        domain={props.domain}
+                        width={2000}
+                        transform={'translate (0,0)'}
+                        id={'hg38_ldtrack'}
+                        population={['EUR', 'AMR', 'ASN', 'AFR']}
+                        anchor={props.anchor}
+                        assembly={'hg38'}
+                        endpoint={'https://snps.staging.wenglab.org/graphql'}
+                    >
+                        {defaultTracks['EUR_LdTrack'] === 'hide' ? (
+                            <WrappedTrack width={2000} height={0} id={'EUR_LdTrack'}>
+                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'EUR_LdTrack'} />
+                            </WrappedTrack>
+                        ) : (
+                            <WrappedLDTrack
+                                titleSize={12}
+                                trackMargin={12}
+                                height={100}
+                                domain={props.domain}
+                                width={2000}
+                                id={'EUR_LdTrack'}
+                                title={'common EUROPEAN SNPs with LD'}
+                                onVariantClick={(snp: { rsId: string }) => {
+                                    props.setAnchor && props.setAnchor(snp.rsId);
+                                }}
+                            />
+                        )}
+                        {defaultTracks['AMR_LdTrack'] === 'hide' ? (
+                            <WrappedTrack width={2000} height={0} id={'AMR_LdTrack'}>
+                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'AMR_LdTrack'} />
+                            </WrappedTrack>
+                        ) : (
+                            <WrappedLDTrack
+                                titleSize={12}
+                                trackMargin={12}
+                                height={100}
+                                domain={props.domain}
+                                width={2000}
+                                id={'AMR_LdTrack'}
+                                title={'common AMERICAN SNPs with LD'}
+                                onVariantClick={(snp: { rsId: string }) => {
+                                    props.setAnchor && props.setAnchor(snp.rsId);
+                                }}
+                            />
+                        )}
+                        {defaultTracks['ASN_LdTrack'] === 'hide' ? (
+                            <WrappedTrack width={2000} height={0} id={'ASN_LdTrack'}>
+                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'ASN_LdTrack'} />
+                            </WrappedTrack>
+                        ) : (
+                            <WrappedLDTrack
+                                height={100}
+                                titleSize={12}
+                                trackMargin={12}
+                                domain={props.domain}
+                                width={2000}
+                                id={'ASN_LdTrack'}
+                                title={'common ASIAN SNPs with LD'}
+                                onVariantClick={(snp: { rsId: string }) => {
+                                    props.setAnchor && props.setAnchor(snp.rsId);
+                                }}
+                            />
+                        )}
+                        {defaultTracks['AFR_LdTrack'] === 'hide' ? (
+                            <WrappedTrack width={2000} height={0} id={'AFR_LdTrack'}>
+                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'AFR_LdTrack'} />
+                            </WrappedTrack>
+                        ) : (
+                            <WrappedLDTrack
+                                height={100}
+                                titleSize={12}
+                                trackMargin={12}
+                                domain={props.domain}
+                                width={2000}
+                                id={'AFR_LdTrack'}
+                                title={'common AFRICAN SNPs with LD'}
+                                onVariantClick={(snp: { rsId: string }) => {
+                                    props.setAnchor && props.setAnchor(snp.rsId);
+                                }}
+                            />
+                        )}
+                    </GraphQLLDTrack>
+                ) : (
+                    <WrappedTrack id="EUR_LdTrack" width={2000} height={50}>
+                        <EmptyTrack
+                            id={'ldTrakcs'}
+                            height={50}
+                            width={2000}
+                            text={'Zoom in to view LdTracks'}
+                            transform={'translate (0,0)'}
+                        />
+                    </WrappedTrack>
+                )}
+                {customTracks &&
+                    customTracks.map((track, i) => (
+                        <GraphQLTrackSet
+                            tracks={[
+                                {
+                                    ...track.track,
+                                    chr1: props.domain.chromosome!,
+                                    start: props.domain.start,
+                                    end: props.domain.end,
+                                    zoomLevel: Math.round((props.domain.end - props.domain.start) / 1850),
+                                },
+                            ]}
+                            endpoint="https://ga.staging.wenglab.org/graphql"
+                            width={2000}
+                            transform="translate(0,0)"
+                            id={track.track.url}
+                            key={`ct${track.track.url}`}
+                        >
+                            <CustomTrack
+                                width={2000}
+                                height={100}
+                                id={track.track.url}
+                                svgRef={props.svgRef}
                                 transform="translate(0,0)"
-                                id={`customtrack,${i}`}
-                                key={`ct${track.track.url}`}
-                            >
-                                <CustomTrack
-                                    width={2000}
-                                    height={50}
-                                    id={`ct${i}`}
-                                    transform="translate(0,0)"
-                                    displayMode={track.displayMode}
-                                    title={track.title}
-                                    color={track.color}
-                                    domain={props.domain}
-                                />
-                            </GraphQLTrackSet>
-                        ))}
+                                displayMode={track.displayMode}
+                                title={track.title}
+                                color={track.color}
+                                domain={props.domain}
+                            />
+                        </GraphQLTrackSet>
+                    ))}
                 {props.customFiles &&
-                    props.customFiles.map((ufile, i) => {
+                    Object.values(props.customFiles).map((ufile, i) => {
                         return (
                             <UploadedFile
-                                key={ufile.title + '_' + i}
+                                key={ufile.title}
                                 file={ufile.file}
-                                id={ufile.title + '_' + i}
+                                id={ufile.title}
                                 transform="translate(0,0)"
                                 width={2000}
+                                svgRef={props.svgRef}
                                 domain={props.domain}
                             >
                                 <CustomTrack
-                                    key={`ct${i}`}
+                                    key={ufile.title}
                                     width={2000}
-                                    height={50}
-                                    id={`ct${i}`}
+                                    height={100}
+                                    id={ufile.title}
                                     transform="translate(0,0)"
                                     displayMode={ufile.displayMode}
                                     title={ufile.title}
@@ -261,8 +359,9 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                             </UploadedFile>
                         );
                     })}
-                {props.customPeaks &&
-                    props.customPeaks.map(
+
+                {pks &&
+                    Object.values(pks).map(
                         (
                             peak: {
                                 peaks: { chr: string; start: number; end: number }[] | [];
@@ -277,6 +376,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                     key={peak.title + i}
                                     id={peak.title + i}
                                     height={0}
+                                    svgRef={props.svgRef}
                                 >
                                     {peak.displayMode === 'squish' ? (
                                         <WrappedSquishBigBed
@@ -285,9 +385,9 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                             height={50}
                                             rowHeight={10}
                                             transform={'translate (0,0)'}
-                                            id={peak.title + i}
+                                            id={peak.title}
                                             domain={props.domain}
-                                            color={'#ff0000'}
+                                            color={'black'}
                                             data={peak.peaks}
                                             titleSize={12}
                                             trackMargin={12}
@@ -298,7 +398,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                             width={2000}
                                             height={50}
                                             transform={'translate (0,0)'}
-                                            id={peak.title + i}
+                                            id={peak.title}
                                             domain={props.domain}
                                             color={'black'}
                                             data={peak.peaks}
@@ -315,7 +415,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         <BamTrack
                             key={bt.track.url}
                             transform={'translate (0 0)'}
-                            id={i + '_bamtrack'}
+                            id={bt.track.url}
                             width={2000}
                             track={{
                                 bamUrl: bt.track.url,
@@ -335,7 +435,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                     color={bt.color}
                                     height={50}
                                     domain={{ start: props.domain.start, end: props.domain.end }}
-                                    id={i + '_densebam'}
+                                    id={bt.track.url}
                                 />
                             ) : (
                                 <WrappedSquishBam
@@ -346,13 +446,64 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                     color={bt.color}
                                     rowHeight={10}
                                     domain={{ start: props.domain.start, end: props.domain.end }}
-                                    id={i + '_squishbam'}
+                                    id={bt.track.url}
                                 />
                             )}
                         </BamTrack>
                     );
                 })}
             </GenomeBrowser>
+            <h4>Hg38 Default Tracks</h4>
+            {Array.from(Array(noOfRows).keys()).map((k) => {
+                return (
+                    <React.Fragment key={k}>
+                        {Object.keys(defaultTracks)
+                            .slice(
+                                k * 5,
+                                k * 5 + 5 > Object.keys(defaultTracks).length
+                                    ? Object.keys(defaultTracks).length
+                                    : k * 5 + 5
+                            )
+                            .map((t) => {
+                                return (
+                                    <React.Fragment key={t}>
+                                        <strong>{t}</strong> &nbsp; &nbsp;
+                                        <Dropdown
+                                            placeholder="Select Display Mode"
+                                            selection
+                                            value={defaultTracks[t]}
+                                            onChange={(_, data) => {
+                                                if (defaultTracks[t] !== undefined) {
+                                                    let dTracks = { ...defaultTracks };
+                                                    dTracks[t] = data.value as string;
+                                                    setDefaultTracks(dTracks);
+                                                }
+                                            }}
+                                            options={
+                                                t === 'transcript'
+                                                    ? [
+                                                          { text: 'pack', value: 'pack' },
+                                                          { text: 'hide', value: 'hide' },
+                                                      ]
+                                                    : t.includes('LdTrack')
+                                                    ? [
+                                                          { text: 'dense', value: 'dense' },
+                                                          { text: 'hide', value: 'hide' },
+                                                      ]
+                                                    : getTrackDisplayModes(
+                                                          tracks(props.domain).find((t1) => t1.id === t)?.url!!
+                                                      )
+                                            }
+                                        />{' '}
+                                        &nbsp; &nbsp; &nbsp; &nbsp;
+                                    </React.Fragment>
+                                );
+                            })}
+                        <br />
+                        <br />
+                    </React.Fragment>
+                );
+            })}
         </Container>
     );
 };

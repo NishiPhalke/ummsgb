@@ -10,3 +10,9 @@ export interface Domain {
     start: number;
     end: number;
 }
+
+export const formatBEDRegion = (chromosome: string) => (region: { start: number; end: number }) => ({
+    chr: chromosome,
+    start: region.start,
+    end: region.end,
+});

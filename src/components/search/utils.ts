@@ -25,6 +25,9 @@ export const uniq = (results: Result[], d: string): Result[] => {
  * @param value the value to check
  */
 export const isCoordinate = (value: string) => {
+    if (value === undefined) {
+        return;
+    }
     const match = value.match && value.match(/^[a-zA-Z0-9]+[:][0-9,]+[-][0-9,]+$/g);
     return match && match.length && match.length === 1;
 };

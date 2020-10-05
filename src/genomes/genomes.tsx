@@ -7,10 +7,9 @@ export const genomeConfig: Record<
 > = {
     hg38: {
         browser: Hg38Browser,
-        // domain: { chromosome: 'chr1', start: 10248, end: 10356 },
+        domain: { chromosome: 'chr1', start: 10248, end: 10356 },
         //domain: { chromosome: 'chr1', start: 2217872, end: 2257872 },
-
-        domain: { chromosome: 'chr12', start: 53379291, end: 53416942 },
+        //domain: { chromosome: 'chr12', start: 53379291, end: 53416942 },
     },
     hg19: {
         browser: Hg19Browser,

@@ -16,7 +16,7 @@ import MemoDefaultBrowser from './../default/default';
 import { RefSeqSearchBox } from './../../components/search';
 import TrackConfigs from './trackconfigs';
 import { GenomicRegionList, GenomicRegion } from 'ts-bedkit';
-import { GenomicRange } from 'ts-bedkit';
+
 const parseDomain = (domain: string) => ({
     chromosome: domain.split(':')[0],
     start: +domain.split(':')[1].split('-')[0].replace(/,/g, ''),
@@ -259,12 +259,14 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         }
     };
 
-    const onBedParsed = (regions: {chromosome: string, start: number, end: number}[], title: string) => {
-       
+    const onBedParsed = (regions: { chromosome: string; start: number; end: number }[], title: string) => {
         const regionList = new GenomicRegionList(
-            regions.map((x: {chromosome: string, start: number, end: number}) => new GenomicRegion(x.chromosome, x.start, x.end))
+            regions.map(
+                (x: { chromosome: string; start: number; end: number }) =>
+                    new GenomicRegion(x.chromosome, x.start, x.end)
+            )
         );
-        const peaks: any = regionList.regions[domain?.chromosome!!];      
+        const peaks: any = regionList.regions[domain?.chromosome!!];
         let cPeaks: Record<string, { peaks: any | []; title: string; displayMode?: string }> = {};
         if (customPeaks !== undefined) {
             cPeaks = { ...customPeaks };
@@ -274,11 +276,6 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         }
         setCustomPeaks(cPeaks);
     };
-    const formatBEDRegion = (chromosome: string) => (region: { start: number, end: number}) => ({
-        chr: chromosome,
-        start: region.start,
-        end: region.end,
-    });
 
     const bedFileReceived = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -338,9 +335,9 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
             <GenomePageMenu />
             <div style={{ width: '100%' }} className="App">
                 <br />
-                <h1>
+                <h2>
                     UMMS Genome Browser {assemblyInfo?.species} {assemblyInfo?.description}
-                </h1>
+                </h2>
                 <>
                     <UCSCControls onDomainChanged={onDomainChanged} domain={domain} withInput={false} />
                     <br />
@@ -376,34 +373,17 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         onDomainChanged={onDomainChanged}
                         anchor={anchor}
                         setAnchor={setAnchor}
-                        customTracks={
-                            customTracks
-                                ? Object.values(customTracks) //.filter((ct) => ct.displayMode !== 'hide')
-                                : undefined
-                        }
+                        setCustomTracks={setCustomTracks}
+                        customTracks={customTracks}
                         svgRef={svg}
+                        setCustomFiles={setCustomFiles}
+                        setCustomPeaks={setCustomPeaks}
                         customFiles={
                             customFiles
-                                ? Object.values(customFiles).filter((cf) => cf.displayMode !== 'hide')
-                                : undefined
+                            //? Object.values(customFiles).filter((cf) => cf.displayMode !== 'hide')
+                            //: undefined
                         }
-                        customPeaks={
-                            customPeaks
-                                ? Object.values(customPeaks)
-                                      .map((cp) => {
-                                          let c =
-                                              cp.peaks &&
-                                              cp.peaks
-                                                  .findInRange(new GenomicRange(domain!!.start, domain!!.end))
-                                                  .map(formatBEDRegion(domain!!.chromosome!!));
-                                          return {
-                                              ...cp,
-                                              peaks: c && c.length > 0 ? c : [],
-                                          };
-                                      })
-                                      .filter((cf) => cf.displayMode !== 'hide')
-                                : undefined
-                        }
+                        customPeaks={customPeaks}
                     />
                     <br />
                     <AddTrackModal
@@ -456,7 +436,10 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         open={saveSessionModalShown}
                         data={sessionData!!}
                         onClose={() => setSaveSessionModalShown(false)}
-                        warn={customFiles && Object.values(customFiles).length}
+                        warn={
+                            customFiles &&
+                            Object.values(customFiles).length + (customPeaks ? Object.values(customPeaks).length : 0)
+                        }
                     />
                     <br />
                     <TrackConfigs

@@ -33,6 +33,7 @@ export type CustomTrackProps = {
     id: string;
     height: number;
     displayMode?: string;
+    svgRef?: React.RefObject<SVGSVGElement>;
     width: number;
     title: string;
     color: string;

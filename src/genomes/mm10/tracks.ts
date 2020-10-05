@@ -18,6 +18,10 @@ export const conservationtrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://data.genomealmanac.org/mm10.60way.phyloP60way.bw',
     preRenderedWidth: 1850,
+    id: 'phyloP',
+    color: '#000088',
+    title: 'phyloP 100-way conservation',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
 
 /**
@@ -31,4 +35,8 @@ export const dnasetrack = (domain: Domain) => ({
     chr1: domain.chromosome!!,
     url: 'gs://data.genomealmanac.org/mm10.dnase.bigWig',
     preRenderedWidth: 1850,
+    id: 'dnase',
+    color: '#06da93',
+    title: 'Aggregated DNase-seq from ENCODE',
+    zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });

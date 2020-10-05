@@ -6,5 +6,6 @@ export type UploadedFileProps = {
     width: number;
     id: string;
     transform: string;
+    svgRef?: React.RefObject<SVGSVGElement>;
     onHeightChanged?: (value: number) => void;
 };

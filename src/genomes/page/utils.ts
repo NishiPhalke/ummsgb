@@ -58,7 +58,7 @@ export const getDefaultDisplayMode = (url: string): string | undefined => {
         return undefined;
     }
 };
-const getTrackType = (url: string): string | undefined => {
+export const getTrackType = (url: string): string | undefined => {
     if (url.toLowerCase().includes('.bigwig') || url.toLowerCase().includes('.bw')) {
         return TrackType.BIGWIG;
     } else if (
@@ -74,7 +74,7 @@ const getTrackType = (url: string): string | undefined => {
     }
 };
 
-const parseBed = (e: string) => {    
+const parseBed = (e: string) => {
     const lines = e.split('\n');
     return lines
         .map((l: string) => l.split('\t'))
@@ -84,10 +84,14 @@ const parseBed = (e: string) => {
             start: +r[1],
             end: +r[2],
         }))
-        .filter((r: { start: number, end: number}) => !isNaN(r.start) && !isNaN(r.end));
+        .filter((r: { start: number; end: number }) => !isNaN(r.start) && !isNaN(r.end));
 };
 
-export const readBed =(file: File, onComplete: (regions: {chromosome: string, start: number, end: number}[]) => void, onError: (e: Error) => void) =>{
+export const readBed = (
+    file: File,
+    onComplete: (regions: { chromosome: string; start: number; end: number }[]) => void,
+    onError: (e: Error) => void
+) => {
     const textReader = new FileReader();
     textReader.onload = (e: any) => {
         const newRegions = parseBed(e.target.result);
@@ -105,4 +109,4 @@ export const readBed =(file: File, onComplete: (regions: {chromosome: string, st
         }
     };
     textReader.readAsText(file);
-}
+};

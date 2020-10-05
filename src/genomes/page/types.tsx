@@ -36,7 +36,7 @@ export type MetadataModalProps = {
 export type TrackConfigsProps = {
     tracks?: customTrack[];
     files?: { title: string; displayMode?: string }[];
-    onFileSelect: (title: string, displayMode: string) => void;
+    onFileSelect?: (title: string, displayMode: string) => void;
     onSelect: (
         modalState: {
             title: string;
