@@ -89,7 +89,6 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                         };
                         props.setCustomPeaks && props.setCustomPeaks(cf);
                     } else {
-                        console.log(id, id);
                         let ct: Record<string, customTrack> = { ...props.customTracks };
 
                         ct[id] = {
@@ -100,8 +99,8 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                     }
                 }}
             >
-                <WrappedTrack width={2000} height={50} title="scale" titleSize={12} id="ruler" trackMargin={12}>
-                    <RulerTrack width={2000} height={50} domain={props.domain} />
+                <WrappedTrack width={2000} height={70} title="scale" id="ruler" titleSize={12} trackMargin={12}>
+                    <RulerTrack width={2000} height={70} domain={props.domain} />
                 </WrappedTrack>
                 {defaultTracks['transcript'] === 'hide' ? (
                     <WrappedTrack width={2000} height={0} id={'transcript'}>
@@ -127,7 +126,14 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                         />
                     </GraphQLTranscriptTrack>
                 ) : (
-                    <WrappedTrack id="emptytrack" width={2000} height={50}>
+                    <WrappedTrack
+                        id="emptytrack"
+                        width={2000}
+                        height={50}
+                        title={'GENCODE v29 transcripts'}
+                        titleSize={12}
+                        trackMargin={12}
+                    >
                         <EmptyTrack
                             id={'transcript'}
                             height={50}
@@ -257,7 +263,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                                 <StackedTracks
                                     transform={'translate (0,0)'}
                                     key={peak.title + i}
-                                    id={peak.title + i}
+                                    id={peak.title}
                                     height={0}
                                     svgRef={props.svgRef}
                                 >
@@ -275,6 +281,21 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                                             titleSize={12}
                                             trackMargin={12}
                                         />
+                                    ) : peak.displayMode === 'hide' ? (
+                                        <WrappedTrack
+                                            {...props}
+                                            width={2000}
+                                            height={0}
+                                            title={undefined}
+                                            id={peak.title}
+                                        >
+                                            <EmptyTrack
+                                                width={2000}
+                                                transform={'translate (0,0)'}
+                                                height={0}
+                                                id={peak.title}
+                                            />
+                                        </WrappedTrack>
                                     ) : (
                                         <WrappedDenseBigBed
                                             title={peak.title}
@@ -294,11 +315,11 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                         }
                     )}
                 {bamCustomTracks?.map((bt, i) => {
-                    return (
+                    return props.domain.end - props.domain.start <= 50000 ? (
                         <BamTrack
                             key={bt.track.url}
                             transform={'translate (0 0)'}
-                            id={i + '_bamtrack'}
+                            id={bt.track.url}
                             width={2000}
                             track={{
                                 bamUrl: bt.track.url,
@@ -318,8 +339,17 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                                     color={bt.color}
                                     height={50}
                                     domain={{ start: props.domain.start, end: props.domain.end }}
-                                    id={i + '_densebam'}
+                                    id={bt.track.url}
                                 />
+                            ) : bt.displayMode === 'hide' ? (
+                                <WrappedTrack width={2000} height={0} id={bt.track.url}>
+                                    <EmptyTrack
+                                        width={2000}
+                                        transform={'translate (0,0)'}
+                                        height={0}
+                                        id={bt.track.url}
+                                    />
+                                </WrappedTrack>
                             ) : (
                                 <WrappedSquishBam
                                     width={2000}
@@ -329,10 +359,27 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                                     color={bt.color}
                                     rowHeight={10}
                                     domain={{ start: props.domain.start, end: props.domain.end }}
-                                    id={i + '_squishbam'}
+                                    id={bt.track.url}
                                 />
                             )}
                         </BamTrack>
+                    ) : (
+                        <WrappedTrack
+                            title={bt.title}
+                            id={bt.track.url}
+                            width={2000}
+                            height={50}
+                            titleSize={12}
+                            trackMargin={12}
+                        >
+                            <EmptyTrack
+                                id={bt.track.url}
+                                height={50}
+                                width={2000}
+                                text={`Zoom in to view ${bt.title} track`}
+                                transform={'translate (0,0)'}
+                            />
+                        </WrappedTrack>
                     );
                 })}
             </GenomeBrowser>
@@ -367,12 +414,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                                                     ? [
                                                           { text: 'pack', value: 'pack' },
                                                           { text: 'hide', value: 'hide' },
-                                                      ]
-                                                    : t.includes('LdTrack')
-                                                    ? [
-                                                          { text: 'dense', value: 'dense' },
-                                                          { text: 'hide', value: 'hide' },
-                                                      ]
+                                                      ]                                                   
                                                     : getTrackDisplayModes(
                                                           tracks(props.domain).find((t1) => t1.id === t)?.url!!
                                                       )

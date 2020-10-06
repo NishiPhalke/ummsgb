@@ -36,7 +36,7 @@ export type CustomTrackProps = {
     svgRef?: React.RefObject<SVGSVGElement>;
     width: number;
     title: string;
-    color: string;
+    color?: string;
     domain: Domain;
     onHeightChanged?: (value: number) => void;
     transform: string;

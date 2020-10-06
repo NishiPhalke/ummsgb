@@ -103,9 +103,8 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         }
     }, [transcriptCoordinates, chromLength, props.assembly]);
     const chromosome = domain?.chromosome;
-
-    useEffect(() => {
-        const fetchChromLength = async (chrom: string) => {
+    const fetchChromLength = React.useCallback(
+        async (chrom: string) => {
             const response = await fetch('https://ga.staging.wenglab.org/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -115,15 +114,21 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                 headers: { 'Content-Type': 'application/json' },
             });
             let chrLength = (await response.json()).data?.chromlengths[0]?.length || 0;
-            setChromLength(chrLength);
-        };
+            return chrLength;
+        },
+        [props.assembly]
+    );
+    useEffect(() => {
         let d =
             chromosome ||
             (genomeConfig[props.assembly]
                 ? genomeConfig[props.assembly].domain.chromosome
                 : transcriptCoordinates && transcriptCoordinates.coordinates.chromosome);
-        if (d) fetchChromLength(d);
-    }, [props.assembly, transcriptCoordinates, props.session, chromosome]);
+        if (d) {
+            fetchChromLength(d).then((chrLen) => setChromLength(chrLen));
+        }
+    }, [props.assembly, transcriptCoordinates, props.session, chromosome, fetchChromLength]);
+
     useEffect(() => {
         let d: Domain | undefined =
             (props.session && props.session.domain) ||
@@ -154,15 +159,19 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
     const onDomainChanged = React.useCallback(
         (d: Domain) => {
-            const start = d.start < 0 ? 0 : d.start;
-            const end = d.end > chromLength ? chromLength : d.end;
             if (d.chromosome && d.chromosome !== domain!!.chromosome) {
-                setDomain({
-                    chromosome: d.chromosome,
-                    start,
-                    end,
+                fetchChromLength(d.chromosome).then((chrLen) => {
+                    const start = d.start < 0 ? 0 : d.start;
+                    const end = d.end > chrLen ? chrLen : d.end;
+                    setDomain({
+                        chromosome: d.chromosome,
+                        start,
+                        end,
+                    });
                 });
             } else {
+                const start = d.start < 0 ? 0 : d.start;
+                const end = d.end > chromLength ? chromLength : d.end;
                 setDomain({
                     chromosome: domain!!.chromosome,
                     start,
@@ -170,7 +179,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                 });
             }
         },
-        [domain, chromLength]
+        [domain, chromLength, fetchChromLength]
     );
     const onModalAccept = React.useCallback(
         (
@@ -378,11 +387,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         svgRef={svg}
                         setCustomFiles={setCustomFiles}
                         setCustomPeaks={setCustomPeaks}
-                        customFiles={
-                            customFiles
-                            //? Object.values(customFiles).filter((cf) => cf.displayMode !== 'hide')
-                            //: undefined
-                        }
+                        customFiles={customFiles}
                         customPeaks={customPeaks}
                     />
                     <br />

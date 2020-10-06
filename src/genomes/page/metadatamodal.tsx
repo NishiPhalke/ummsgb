@@ -13,7 +13,7 @@ const MetadataModal: React.FC<MetadataModalProps> = (props) => {
                 return {
                     url: u,
                     domain: props.domain,
-                    color: '#ff0000',
+                    color: 'black',
                     displayMode: getDefaultDisplayMode(u),
                     title: u!!.split('/')[u!!.split('/').length - 1],
                 };

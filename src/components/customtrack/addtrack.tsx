@@ -171,7 +171,9 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
                                 />
                                 <br />
                                 <br />
-                                <ColorPicker color={color} onChangeComplete={(color) => setColor(color)} />
+                                {!addBamTrack && (
+                                    <ColorPicker color={color} onChangeComplete={(color) => setColor(color)} />
+                                )}
                                 <br />
                             </Modal.Description>
                             <br />

@@ -22,7 +22,7 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
     }, [searchVal, results, props, selectedsearchVal]);
     const onSearchChange = useCallback(
         async (e, { value }) => {
-            const response = await fetch('https:/ga.staging.wenglab.org/graphql', {
+            const response = await fetch('https://ga.staging.wenglab.org/graphql', {
                 method: 'POST',
                 body: JSON.stringify({
                     query: GENE_AUTOCOMPLETE_QUERY,

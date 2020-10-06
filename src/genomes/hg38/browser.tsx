@@ -58,12 +58,12 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
     defaultTracksModes['AFR_LdTrack'] = 'dense';
     defaultTracksModes['EUR_LdTrack'] = 'dense';
     defaultTracksModes['AMR_LdTrack'] = 'dense';
-
+   
     let noOfRows = +(+Math.round((tracks(props.domain).length + 5) / 5)).toFixed() + 1;
     const [defaultTracks, setDefaultTracks] = useState<Record<string, string>>(defaultTracksModes);
     const customTracks = props.customTracks && Object.values(props.customTracks).filter((ct) => !ct.track.baiUrl);
     const bamCustomTracks = props.customTracks && Object.values(props.customTracks).filter((ct) => ct.track.baiUrl);
-
+   
     let pks: Record<
         string,
         { peaks: { chr: string; start: number; end: number }[] | []; title: string; displayMode?: string }
@@ -112,7 +112,6 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         };
                         props.setCustomPeaks && props.setCustomPeaks(cf);
                     } else {
-                        console.log(id, id);
                         let ct: Record<string, customTrack> = { ...props.customTracks };
 
                         ct[id] = {
@@ -130,7 +129,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                     <WrappedTrack width={2000} height={0} id={'transcript'}>
                         <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'transcript'} />
                     </WrappedTrack>
-                ) : props.domain.end - props.domain.start <= 1000000 ? (
+                ) : props.domain.end - props.domain.start <= 10000000 ? (
                     <GraphQLTranscriptTrack
                         domain={props.domain}
                         transform={'translate (0,0)'}
@@ -150,7 +149,14 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         />
                     </GraphQLTranscriptTrack>
                 ) : (
-                    <WrappedTrack id="emptytrack" width={2000} height={50}>
+                    <WrappedTrack
+                        id="emptytrack"
+                        width={2000}
+                        height={50}
+                        title={'GENCODE v29 transcripts'}
+                        titleSize={12}
+                        trackMargin={12}
+                    >
                         <EmptyTrack
                             id={'transcript'}
                             height={50}
@@ -294,7 +300,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                 ) : (
                     <WrappedTrack id="EUR_LdTrack" width={2000} height={50}>
                         <EmptyTrack
-                            id={'ldTrakcs'}
+                            id="EUR_LdTrack"
                             height={50}
                             width={2000}
                             text={'Zoom in to view LdTracks'}
@@ -337,7 +343,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                     Object.values(props.customFiles).map((ufile, i) => {
                         return (
                             <UploadedFile
-                                key={ufile.title}
+                                key={ufile.title+i}
                                 file={ufile.file}
                                 id={ufile.title}
                                 transform="translate(0,0)"
@@ -374,7 +380,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 <StackedTracks
                                     transform={'translate (0,0)'}
                                     key={peak.title + i}
-                                    id={peak.title + i}
+                                    id={peak.title}
                                     height={0}
                                     svgRef={props.svgRef}
                                 >
@@ -392,6 +398,21 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                             titleSize={12}
                                             trackMargin={12}
                                         />
+                                    ) : peak.displayMode === 'hide' ? (
+                                        <WrappedTrack
+                                            {...props}
+                                            width={2000}
+                                            height={0}
+                                            title={undefined}
+                                            id={peak.title}
+                                        >
+                                            <EmptyTrack
+                                                width={2000}
+                                                transform={'translate (0,0)'}
+                                                height={0}
+                                                id={peak.title}
+                                            />
+                                        </WrappedTrack>
                                     ) : (
                                         <WrappedDenseBigBed
                                             title={peak.title}
@@ -411,7 +432,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         }
                     )}
                 {bamCustomTracks?.map((bt, i) => {
-                    return (
+                    return props.domain.end - props.domain.start <= 50000 ? (
                         <BamTrack
                             key={bt.track.url}
                             transform={'translate (0 0)'}
@@ -437,6 +458,15 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                     domain={{ start: props.domain.start, end: props.domain.end }}
                                     id={bt.track.url}
                                 />
+                            ) : bt.displayMode === 'hide' ? (
+                                <WrappedTrack width={2000} height={0} id={bt.track.url}>
+                                    <EmptyTrack
+                                        width={2000}
+                                        transform={'translate (0,0)'}
+                                        height={0}
+                                        id={bt.track.url}
+                                    />
+                                </WrappedTrack>
                             ) : (
                                 <WrappedSquishBam
                                     width={2000}
@@ -450,6 +480,23 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 />
                             )}
                         </BamTrack>
+                    ) : (
+                        <WrappedTrack
+                            title={bt.title}
+                            id={bt.track.url}
+                            width={2000}
+                            height={50}
+                            titleSize={12}
+                            trackMargin={12}
+                        >
+                            <EmptyTrack
+                                id={bt.track.url}
+                                height={50}
+                                width={2000}
+                                text={`Zoom in to view ${bt.title} track`}
+                                transform={'translate (0,0)'}
+                            />
+                        </WrappedTrack>
                     );
                 })}
             </GenomeBrowser>

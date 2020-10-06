@@ -86,7 +86,7 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
                         {...props}
                         title={props.title}
                         width={props.width}
-                        height={props.height}
+                        height={props.height / 2}
                         transform={'translate (0,0)'}
                         id={props.id}
                         color={props.color}
