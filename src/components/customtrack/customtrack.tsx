@@ -51,7 +51,9 @@ const CustomTrack: React.FC<CustomTrackProps> = (props) => {
     const displayMode =
         props.displayMode ||
         (trackType === TrackType.BIGBED
-            ? DEFAULT_BIGBED_DISPLAYMODE
+            ? props.domain.end - props.domain.start > 10000000
+                ? 'squish'
+                : DEFAULT_BIGBED_DISPLAYMODE
             : trackType === TrackType.BIGWIG
             ? DEFAULT_BIGWIG_DISPLAYMODE
             : DEFAULT_BAM_DISPLAYMODE);

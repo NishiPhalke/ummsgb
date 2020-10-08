@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Modal, Button, Menu } from 'semantic-ui-react';
 import { MetadataModalProps } from './types';
 import { EncodeSearch, EncodeMetadata, ExperimentsByFeature } from 'gbmetadata';
-import { getDefaultDisplayMode } from './utils';
 
 const MetadataModal: React.FC<MetadataModalProps> = (props) => {
     const [activePage, setActivePage] = useState<string>('search');
@@ -13,8 +12,8 @@ const MetadataModal: React.FC<MetadataModalProps> = (props) => {
                 return {
                     url: u,
                     domain: props.domain,
-                    color: 'black',
-                    displayMode: getDefaultDisplayMode(u),
+                    color: '#000000',
+                    //displayMode: getDefaultDisplayMode(u,props.domain),
                     title: u!!.split('/')[u!!.split('/').length - 1],
                 };
             });

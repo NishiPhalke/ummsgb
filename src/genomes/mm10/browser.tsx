@@ -9,6 +9,7 @@ import {
     GraphQLTranscriptTrack,
     WrappedPackTranscriptTrack,
     WrappedSquishBam,
+    WrappedSquishTranscriptTrack,
     BamTrack,
     GenomeBrowser,
     WrappedDenseBigBed,
@@ -27,6 +28,10 @@ import { GenomicRange } from 'ts-bedkit';
 import { formatBEDRegion } from './../types';
 
 const tracks = (range: Domain) => [dnasetrack(range), conservationtrack(range)];
+const BamTrack_Limit = 50000;
+const transcriptPack_Limit = 3000000;
+const transcript_Limit = 10000000;
+const bigbed_Limit = 10000000;
 
 const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
     let defaultTracksModes: Record<string, string> = {};
@@ -34,7 +39,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
         let trackType = getTrackType(t.url);
         defaultTracksModes[t.id] = trackType === 'BIGBED' ? 'dense' : trackType === 'BIGWIG' ? 'full' : 'dense';
     });
-    defaultTracksModes['transcript'] = 'pack';
+    defaultTracksModes['transcript'] = '';
 
     let noOfRows = +(+Math.round((tracks(props.domain).length + 5) / 5)).toFixed() + 1;
     const [defaultTracks, setDefaultTracks] = useState<Record<string, string>>(defaultTracksModes);
@@ -64,6 +69,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                 innerWidth={2000}
                 domain={props.domain}
                 svgRef={props.svgRef}
+                onDomainChanged={props.onDomainChanged}
                 onModeChange={(id: string, mode: string) => {
                     if (defaultTracks[id] !== undefined) {
                         let dTracks = { ...defaultTracks };
@@ -106,7 +112,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                     <WrappedTrack width={2000} height={0} id={'transcript'}>
                         <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'transcript'} />
                     </WrappedTrack>
-                ) : props.domain.end - props.domain.start <= 1000000 ? (
+                ) : props.domain.end - props.domain.start < transcript_Limit ? (
                     <GraphQLTranscriptTrack
                         domain={props.domain}
                         transform={'translate (0,0)'}
@@ -114,16 +120,53 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                         endpoint={'https://ga.staging.wenglab.org/graphql'}
                         id="transcript"
                     >
-                        <WrappedPackTranscriptTrack
-                            titleSize={12}
-                            trackMargin={12}
-                            title={'GENCODE v29 transcripts'}
-                            color="#8b0000"
-                            id="transcript"
-                            rowHeight={14}
-                            width={2000}
-                            domain={props.domain}
-                        />
+                        {defaultTracks['transcript'] === 'pack' ? (
+                            <WrappedPackTranscriptTrack
+                                titleSize={12}
+                                trackMargin={12}
+                                title={'GENCODE v29 transcripts'}
+                                color="#8b0000"
+                                id="transcript"
+                                rowHeight={14}
+                                width={2000}
+                                domain={props.domain}
+                            />
+                        ) : defaultTracks['transcript'] === '' ? (
+                            props.domain.end - props.domain.start < transcriptPack_Limit ? (
+                                <WrappedPackTranscriptTrack
+                                    titleSize={12}
+                                    trackMargin={12}
+                                    title={'GENCODE v29 transcripts'}
+                                    color="#8b0000"
+                                    id="transcript"
+                                    rowHeight={14}
+                                    width={2000}
+                                    domain={props.domain}
+                                />
+                            ) : (
+                                <WrappedSquishTranscriptTrack
+                                    titleSize={12}
+                                    trackMargin={12}
+                                    title={'GENCODE v29 transcripts'}
+                                    color="#8b0000"
+                                    id="transcript"
+                                    rowHeight={14}
+                                    width={2000}
+                                    domain={props.domain}
+                                />
+                            )
+                        ) : (
+                            <WrappedSquishTranscriptTrack
+                                titleSize={12}
+                                trackMargin={12}
+                                title={'GENCODE v29 transcripts'}
+                                color="#8b0000"
+                                id="transcript"
+                                rowHeight={14}
+                                width={2000}
+                                domain={props.domain}
+                            />
+                        )}
                     </GraphQLTranscriptTrack>
                 ) : (
                     <WrappedTrack
@@ -296,7 +339,21 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                                                 id={peak.title}
                                             />
                                         </WrappedTrack>
-                                    ) : (
+                                    ) : props.domain.end - props.domain.start > bigbed_Limit && !peak.displayMode ? (
+                                        <WrappedSquishBigBed
+                                            title={peak.title}
+                                            width={2000}
+                                            height={50}
+                                            rowHeight={10}
+                                            transform={'translate (0,0)'}
+                                            id={peak.title}
+                                            domain={props.domain}
+                                            color={'#000000'}
+                                            data={peak.peaks}
+                                            titleSize={12}
+                                            trackMargin={12}
+                                        />
+                                    ): (
                                         <WrappedDenseBigBed
                                             title={peak.title}
                                             width={2000}
@@ -315,7 +372,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                         }
                     )}
                 {bamCustomTracks?.map((bt, i) => {
-                    return props.domain.end - props.domain.start <= 50000 ? (
+                    return props.domain.end - props.domain.start <= BamTrack_Limit ? (
                         <BamTrack
                             key={bt.track.url}
                             transform={'translate (0 0)'}
@@ -401,7 +458,13 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                                         <Dropdown
                                             placeholder="Select Display Mode"
                                             selection
-                                            value={defaultTracks[t]}
+                                            value={
+                                                t === 'transcript' && defaultTracks[t] === ''
+                                                    ? props.domain.end - props.domain.start < transcriptPack_Limit
+                                                        ? 'pack'
+                                                        : 'squish'
+                                                    : defaultTracks[t]
+                                            }
                                             onChange={(_, data) => {
                                                 if (defaultTracks[t] !== undefined) {
                                                     let dTracks = { ...defaultTracks };
@@ -413,8 +476,9 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                                                 t === 'transcript'
                                                     ? [
                                                           { text: 'pack', value: 'pack' },
+                                                          { text: 'squish', value: 'squish' },
                                                           { text: 'hide', value: 'hide' },
-                                                      ]                                                   
+                                                      ]
                                                     : getTrackDisplayModes(
                                                           tracks(props.domain).find((t1) => t1.id === t)?.url!!
                                                       )

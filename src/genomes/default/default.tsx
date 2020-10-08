@@ -6,6 +6,7 @@ import {
     WrappedTrack,
     GenomeBrowser,
     WrappedPackTranscriptTrack,
+    WrappedSquishTranscriptTrack,
     GraphQLTranscriptTrack,
     WrappedSquishBam,
     BamTrack,
@@ -20,12 +21,16 @@ import { Container, Dropdown } from 'semantic-ui-react';
 import { UploadedFile } from './../../components/uploadedfile';
 import { customTrack, formatBEDRegion } from './../types';
 import { GenomicRange } from 'ts-bedkit';
+const BamTrack_Limit = 50000;
+const transcriptPack_Limit = 3000000;
+const transcript_Limit = 10000000;
+const bigbed_Limit = 10000000
 
 const DefaultBrowser: React.FC<DefaultProps> = (props) => {
     let defaultTracksModes: Record<string, string> = {};
 
-    defaultTracksModes['refseqgenes_transcript_track'] = 'pack';
-    defaultTracksModes['refseqxeno_transcript_track'] = 'pack';
+    defaultTracksModes['refseqgenes_transcript_track'] = '';
+    defaultTracksModes['refseqxeno_transcript_track'] = '';
 
     let noOfRows = 1;
     const [defaultTracks, setDefaultTracks] = useState<Record<string, string>>(defaultTracksModes);
@@ -55,6 +60,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                 innerWidth={2000}
                 domain={props.domain}
                 svgRef={props.svgRef}
+                onDomainChanged={props.onDomainChanged}
                 onModeChange={(id: string, mode: string) => {
                     if (defaultTracks[id] !== undefined) {
                         let dTracks = { ...defaultTracks };
@@ -102,7 +108,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                             id={'refseqgenes_transcript_track'}
                         />
                     </WrappedTrack>
-                ) : props.domain.end - props.domain.start <= 1000000 ? (
+                ) : props.domain.end - props.domain.start <= transcript_Limit ? (
                     <GraphQLTranscriptTrack
                         domain={props.domain}
                         transform={'translate (0,0)'}
@@ -111,16 +117,53 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                         id="refseqgenes_transcript_track"
                         queryType={'refseqgenes'}
                     >
-                        <WrappedPackTranscriptTrack
-                            titleSize={12}
-                            trackMargin={12}
-                            title="RefSeq transcripts"
-                            color="#8b0000"
-                            id="refseqgenes_transcript_track"
-                            rowHeight={14}
-                            width={2000}
-                            domain={props.domain}
-                        />
+                        {defaultTracks['refseqgenes_transcript_track'] === 'pack' ? (
+                            <WrappedPackTranscriptTrack
+                                titleSize={12}
+                                trackMargin={12}
+                                title="RefSeq transcripts"
+                                color="#8b0000"
+                                id="refseqgenes_transcript_track"
+                                rowHeight={14}
+                                width={2000}
+                                domain={props.domain}
+                            />
+                        ) : defaultTracks['refseqgenes_transcript_track'] === '' ? (
+                            props.domain.end - props.domain.start < transcriptPack_Limit ? (
+                                <WrappedPackTranscriptTrack
+                                    titleSize={12}
+                                    trackMargin={12}
+                                    title="RefSeq transcripts"
+                                    color="#8b0000"
+                                    id="refseqgenes_transcript_track"
+                                    rowHeight={14}
+                                    width={2000}
+                                    domain={props.domain}
+                                />
+                            ) : (
+                                <WrappedSquishTranscriptTrack
+                                    titleSize={12}
+                                    trackMargin={12}
+                                    title="RefSeq transcripts"
+                                    color="#8b0000"
+                                    id="refseqgenes_transcript_track"
+                                    rowHeight={14}
+                                    width={2000}
+                                    domain={props.domain}
+                                />
+                            )
+                        ) : (
+                            <WrappedSquishTranscriptTrack
+                                titleSize={12}
+                                trackMargin={12}
+                                title="RefSeq transcripts"
+                                color="#8b0000"
+                                id="refseqgenes_transcript_track"
+                                rowHeight={14}
+                                width={2000}
+                                domain={props.domain}
+                            />
+                        )}
                     </GraphQLTranscriptTrack>
                 ) : (
                     <WrappedTrack
@@ -149,7 +192,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                             id={'refseqxeno_transcript_track'}
                         />
                     </WrappedTrack>
-                ) : props.domain.end - props.domain.start <= 1000000 ? (
+                ) : props.domain.end - props.domain.start <= transcript_Limit ? (
                     <GraphQLTranscriptTrack
                         domain={props.domain}
                         transform={'translate (0,0)'}
@@ -158,16 +201,53 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                         id="refseqxeno_transcript_track"
                         queryType={'refseqxenogenes'}
                     >
-                        <WrappedPackTranscriptTrack
-                            titleSize={12}
-                            trackMargin={12}
-                            title="RefSeq transcripts in other species"
-                            color="#8b0000"
-                            id="refseqxeno_transcript_track"
-                            rowHeight={14}
-                            width={2000}
-                            domain={props.domain}
-                        />
+                        {defaultTracks['refseqxeno_transcript_track'] === 'pack' ? (
+                            <WrappedPackTranscriptTrack
+                                titleSize={12}
+                                trackMargin={12}
+                                title="RefSeq transcripts in other species"
+                                color="#8b0000"
+                                id="refseqxeno_transcript_track"
+                                rowHeight={14}
+                                width={2000}
+                                domain={props.domain}
+                            />
+                        ) : defaultTracks['refseqxeno_transcript_track'] === '' ? (
+                            props.domain.end - props.domain.start < transcriptPack_Limit ? (
+                                <WrappedPackTranscriptTrack
+                                    titleSize={12}
+                                    trackMargin={12}
+                                    title="RefSeq transcripts in other species"
+                                    color="#8b0000"
+                                    id="refseqxeno_transcript_track"
+                                    rowHeight={14}
+                                    width={2000}
+                                    domain={props.domain}
+                                />
+                            ) : (
+                                <WrappedSquishTranscriptTrack
+                                    titleSize={12}
+                                    trackMargin={12}
+                                    title="RefSeq transcripts in other species"
+                                    color="#8b0000"
+                                    id="refseqxeno_transcript_track"
+                                    rowHeight={14}
+                                    width={2000}
+                                    domain={props.domain}
+                                />
+                            )
+                        ) : (
+                            <WrappedSquishTranscriptTrack
+                                titleSize={12}
+                                trackMargin={12}
+                                title="RefSeq transcripts in other species"
+                                color="#8b0000"
+                                id="refseqxeno_transcript_track"
+                                rowHeight={14}
+                                width={2000}
+                                domain={props.domain}
+                            />
+                        )}
                     </GraphQLTranscriptTrack>
                 ) : (
                     <WrappedTrack
@@ -293,7 +373,21 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                                                 id={peak.title}
                                             />
                                         </WrappedTrack>
-                                    ) : (
+                                    ) :  props.domain.end - props.domain.start > bigbed_Limit && !peak.displayMode ? (
+                                        <WrappedSquishBigBed
+                                            title={peak.title}
+                                            width={2000}
+                                            height={50}
+                                            rowHeight={10}
+                                            transform={'translate (0,0)'}
+                                            id={peak.title}
+                                            domain={props.domain}
+                                            color={'#000000'}
+                                            data={peak.peaks}
+                                            titleSize={12}
+                                            trackMargin={12}
+                                        />
+                                    ): (
                                         <WrappedDenseBigBed
                                             title={peak.title}
                                             width={2000}
@@ -312,7 +406,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                         }
                     )}
                 {bamCustomTracks?.map((bt, i) => {
-                    return (
+                    return props.domain.end - props.domain.start <= BamTrack_Limit ? (
                         <BamTrack
                             key={bt.track.url}
                             transform={'translate (0 0)'}
@@ -360,6 +454,23 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                                 />
                             )}
                         </BamTrack>
+                    ) : (
+                        <WrappedTrack
+                            title={bt.title}
+                            id={bt.track.url}
+                            width={2000}
+                            height={50}
+                            titleSize={12}
+                            trackMargin={12}
+                        >
+                            <EmptyTrack
+                                id={bt.track.url}
+                                height={50}
+                                width={2000}
+                                text={`Zoom in to view ${bt.title} track`}
+                                transform={'translate (0,0)'}
+                            />
+                        </WrappedTrack>
                     );
                 })}
             </GenomeBrowser>
@@ -381,7 +492,15 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                                         <Dropdown
                                             placeholder="Select Display Mode"
                                             selection
-                                            value={defaultTracks[t]}
+                                            value={
+                                                (t === 'refseqgenes_transcript_track' ||
+                                                    t === 'refseqxeno_transcript_track') &&
+                                                defaultTracks[t] === ''
+                                                    ? props.domain.end - props.domain.start < transcriptPack_Limit
+                                                        ? 'pack'
+                                                        : 'squish'
+                                                    : defaultTracks[t]
+                                            }
                                             onChange={(_, data) => {
                                                 if (defaultTracks[t] !== undefined) {
                                                     let dTracks = { ...defaultTracks };
@@ -391,6 +510,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                                             }}
                                             options={[
                                                 { text: 'pack', value: 'pack' },
+                                                { text: 'squish', value: 'squish' },
                                                 { text: 'hide', value: 'hide' },
                                             ]}
                                         />{' '}

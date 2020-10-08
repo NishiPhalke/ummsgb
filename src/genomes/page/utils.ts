@@ -1,5 +1,6 @@
 import { DEFAULT_BIGWIG_DISPLAYMODE, TrackType, DEFAULT_BAM_DISPLAYMODE, DEFAULT_BIGBED_DISPLAYMODE } from './types';
 import { inflate } from 'pako';
+import { Domain } from '../types';
 
 const svgData = (_svg: any): string => {
     let svg = _svg.cloneNode(true);
@@ -47,11 +48,15 @@ export const getTrackDisplayModes = (url: string): { key: string; text: string; 
     }
 };
 
-export const getDefaultDisplayMode = (url: string): string | undefined => {
+export const getDefaultDisplayMode = (url: string, domain: Domain): string | undefined => {
     if (getTrackType(url) === 'BIGWIG') {
         return DEFAULT_BIGWIG_DISPLAYMODE;
     } else if (getTrackType(url) === 'BIGBED') {
-        return DEFAULT_BIGBED_DISPLAYMODE;
+        if (domain.end - domain.start > 10000000) {
+            return 'squish';
+        } else {
+            return DEFAULT_BIGBED_DISPLAYMODE;
+        }
     } else if (getTrackType(url) === 'BAM') {
         return DEFAULT_BAM_DISPLAYMODE;
     } else {

@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import {
     AddTrackProps,
-    DEFAULT_BIGWIG_DISPLAYMODE,
-    DEFAULT_BIGBED_DISPLAYMODE,
-    DEFAULT_BAM_DISPLAYMODE,
     TrackType,
 } from './types';
 import { Button, Modal, Message, Input, Radio, Dropdown } from 'semantic-ui-react';
 import ColorPicker from './colorpicker';
 import { TEST_QUERY } from './queries';
+import { getDefaultDisplayMode } from '../../genomes/page/utils';
 const getTrackDisplayModes = (url: string): { key: string; text: string; value: string }[] => {
     if (getTrackType(url) === 'BIGWIG') {
         return [
@@ -29,17 +27,6 @@ const getTrackDisplayModes = (url: string): { key: string; text: string; value: 
     }
 };
 
-const getDefaultDisplayMode = (url: string): string | undefined => {
-    if (getTrackType(url) === 'BIGWIG') {
-        return DEFAULT_BIGWIG_DISPLAYMODE;
-    } else if (getTrackType(url) === 'BIGBED') {
-        return DEFAULT_BIGBED_DISPLAYMODE;
-    } else if (getTrackType(url) === 'BAM') {
-        return DEFAULT_BAM_DISPLAYMODE;
-    } else {
-        return undefined;
-    }
-};
 const getTrackType = (url: string): string | undefined => {
     if (url.toLowerCase().includes('.bigwig') || url.toLowerCase().includes('.bw')) {
         return TrackType.BIGWIG;
@@ -68,7 +55,7 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
                         url,
                         domain: props.domain,
                         baiUrl,
-                        displayMode: displayMode || getDefaultDisplayMode(url),
+                        displayMode: displayMode || getDefaultDisplayMode(url, props.domain),
                         color,
                         title,
                     },
@@ -101,7 +88,7 @@ const AddTrack: React.FC<AddTrackProps> = (props) => {
                         {
                             url,
                             domain: props.domain,
-                            displayMode: displayMode || getDefaultDisplayMode(url),
+                            displayMode: displayMode || getDefaultDisplayMode(url, props.domain),
                             color,
                             title,
                         },

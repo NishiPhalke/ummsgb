@@ -37,6 +37,7 @@ export type TrackConfigsProps = {
     tracks?: customTrack[];
     files?: { title: string; displayMode?: string }[];
     onFileSelect?: (title: string, displayMode: string) => void;
+    domain: Domain;
     onSelect: (
         modalState: {
             title: string;

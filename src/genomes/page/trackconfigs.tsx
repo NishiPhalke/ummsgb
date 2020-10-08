@@ -40,7 +40,10 @@ const TrackConfigs: React.FC<TrackConfigsProps> = (props) => {
                                     <Dropdown
                                         placeholder="Select Display Mode"
                                         selection
-                                        value={t.displayMode || getDefaultDisplayMode(t.track ? t.track.url : t.title)}
+                                        value={
+                                            t.displayMode ||
+                                            getDefaultDisplayMode(t.track ? t.track.url : t.title, props.domain)
+                                        }
                                         onChange={(_, data) => {
                                             !t.track &&
                                                 props.onFileSelect &&

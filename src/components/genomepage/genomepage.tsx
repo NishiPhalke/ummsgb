@@ -69,9 +69,7 @@ const GenomePage: React.FC = () => {
                                     Browse {assemblies.length} assemblies from {Object.keys(groupedAssemblies).length}{' '}
                                     species
                                 </Header>
-                                Click a link to open the UMMS Genome Browser for that assembly. Don't see the assembly
-                                you want?&nbsp;
-                                <Link to="/genomes/add">Add it</Link>!
+                                Click a link to open the UMMS Genome Browser for that assembly.
                             </Grid.Column>
                         </Grid.Row>
                         <Grid.Row>

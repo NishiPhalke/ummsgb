@@ -19,10 +19,6 @@ const Genomes: React.FC = () => (
             <Button as={Link} to="/genomes/">
                 Browse our genomes
             </Button>
-            &nbsp;
-            <Button as={Link} to="/genomes/add/">
-                Add a genome
-            </Button>
         </Grid.Column>
     </Grid.Row>
 );

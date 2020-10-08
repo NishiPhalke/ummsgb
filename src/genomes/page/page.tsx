@@ -250,21 +250,23 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                 return !tracks && !customTracks ? undefined : ct;
             });
         };
-        e.target.files && reader.readAsText(e.target.files[0]);
+        e.target.files && e.target.files[0] && reader.readAsText(e.target.files[0]);
     };
 
     const trackFileReceived = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const fileList = Array.from(e.target.files!!);
-            let cFiles: Record<string, { file: File; title: string; displayMode?: string }> = {};
-            const title: string = fileList[0].name;
-            if (customFiles !== undefined) {
-                cFiles = { ...customFiles };
-                cFiles[title] = { file: fileList[0], title };
-            } else {
-                cFiles[title] = { file: fileList[0], title };
+            if (fileList[0]) {
+                let cFiles: Record<string, { file: File; title: string; displayMode?: string }> = {};
+                const title: string = fileList[0].name;
+                if (customFiles !== undefined) {
+                    cFiles = { ...customFiles };
+                    cFiles[title] = { file: fileList[0], title };
+                } else {
+                    cFiles[title] = { file: fileList[0], title };
+                }
+                setCustomFiles(cFiles);
             }
-            setCustomFiles(cFiles);
         }
     };
 
@@ -449,6 +451,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                     <br />
                     <TrackConfigs
                         files={configFiles}
+                        domain={domain}
                         tracks={customTracks ? Object.values(customTracks) : undefined}
                         onSelect={onModalAccept}
                         onFileSelect={(title: string, displayMode: string) => {
