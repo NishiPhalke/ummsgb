@@ -353,7 +353,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
                                             titleSize={12}
                                             trackMargin={12}
                                         />
-                                    ): (
+                                    ) : (
                                         <WrappedDenseBigBed
                                             title={peak.title}
                                             width={2000}

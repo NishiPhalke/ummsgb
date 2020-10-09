@@ -1,6 +1,6 @@
 export type SearchBoxProps = {
     assembly: string;
-    onSearchSubmit: (domain: string) => void;
+    onSearchSubmit: (domain: string, name?: string, isSnp?: boolean) => void;
 };
 
 export type RefSeqSearchBoxProps = {

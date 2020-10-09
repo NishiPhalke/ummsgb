@@ -47,7 +47,7 @@ const tracks = (range: Domain) => [
 const BamTrack_Limit = 50000;
 const transcriptPack_Limit = 3000000;
 const transcript_Limit = 10000000;
-const bigbed_Limit = 10000000
+const bigbed_Limit = 10000000;
 
 const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => {
     let defaultTracksModes: Record<string, string> = {};
@@ -369,7 +369,7 @@ const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => {
                                             titleSize={12}
                                             trackMargin={12}
                                         />
-                                    ): (
+                                    ) : (
                                         <WrappedDenseBigBed
                                             title={peak.title}
                                             width={2000}

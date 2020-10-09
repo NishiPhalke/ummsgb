@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import {
-    AddTrackProps,
-    TrackType,
-} from './types';
+import { AddTrackProps, TrackType } from './types';
 import { Button, Modal, Message, Input, Radio, Dropdown } from 'semantic-ui-react';
 import ColorPicker from './colorpicker';
 import { TEST_QUERY } from './queries';

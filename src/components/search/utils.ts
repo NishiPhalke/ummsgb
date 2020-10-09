@@ -15,6 +15,7 @@ export const uniq = (results: Result[], d: string): Result[] => {
         });
         if (!found) r.push(result);
     });
+
     return r.length ? r : [{ title: d, description: '' }];
 };
 

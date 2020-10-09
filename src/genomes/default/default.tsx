@@ -24,11 +24,11 @@ import { GenomicRange } from 'ts-bedkit';
 const BamTrack_Limit = 50000;
 const transcriptPack_Limit = 3000000;
 const transcript_Limit = 10000000;
-const bigbed_Limit = 10000000
+const bigbed_Limit = 10000000;
 
 const DefaultBrowser: React.FC<DefaultProps> = (props) => {
     let defaultTracksModes: Record<string, string> = {};
-
+    console.log('props.domain',props.domain)
     defaultTracksModes['refseqgenes_transcript_track'] = '';
     defaultTracksModes['refseqxeno_transcript_track'] = '';
 
@@ -373,7 +373,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                                                 id={peak.title}
                                             />
                                         </WrappedTrack>
-                                    ) :  props.domain.end - props.domain.start > bigbed_Limit && !peak.displayMode ? (
+                                    ) : props.domain.end - props.domain.start > bigbed_Limit && !peak.displayMode ? (
                                         <WrappedSquishBigBed
                                             title={peak.title}
                                             width={2000}
@@ -387,7 +387,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
                                             titleSize={12}
                                             trackMargin={12}
                                         />
-                                    ): (
+                                    ) : (
                                         <WrappedDenseBigBed
                                             title={peak.title}
                                             width={2000}

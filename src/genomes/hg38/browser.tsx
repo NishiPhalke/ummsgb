@@ -52,7 +52,7 @@ const ldTrack_Limit = 5000000;
 const BamTrack_Limit = 50000;
 const transcriptPack_Limit = 3000000;
 const transcript_Limit = 10000000;
-const bigbed_Limit  = 10000000;
+const bigbed_Limit = 10000000;
 
 const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
     let defaultTracksModes: Record<string, string> = {};
@@ -65,12 +65,12 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
     defaultTracksModes['AFR_LdTrack'] = 'dense';
     defaultTracksModes['EUR_LdTrack'] = 'dense';
     defaultTracksModes['AMR_LdTrack'] = 'dense';
-   
+
     let noOfRows = +(+Math.round((tracks(props.domain).length + 5) / 5)).toFixed() + 1;
     const [defaultTracks, setDefaultTracks] = useState<Record<string, string>>(defaultTracksModes);
     const customTracks = props.customTracks && Object.values(props.customTracks).filter((ct) => !ct.track.baiUrl);
     const bamCustomTracks = props.customTracks && Object.values(props.customTracks).filter((ct) => ct.track.baiUrl);
-   
+
     let pks: Record<
         string,
         { peaks: { chr: string; start: number; end: number }[] | []; title: string; displayMode?: string }
@@ -130,8 +130,8 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                     }
                 }}
             >
-                <WrappedTrack width={2000} height={70} title="scale" id="ruler" titleSize={12} trackMargin={12}>
-                    <RulerTrack width={2000} height={70} domain={props.domain} />
+                <WrappedTrack width={2000} height={60} title="scale" id="ruler" titleSize={12} trackMargin={12}>
+                    <RulerTrack width={2000} height={60} domain={props.domain} />
                 </WrappedTrack>
                 {defaultTracks['transcript'] === 'hide' ? (
                     <WrappedTrack width={2000} height={0} id={'transcript'}>

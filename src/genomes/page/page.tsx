@@ -85,6 +85,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         }
     }, [props.assembly]);
     useEffect(() => {
+        console.log(chromLength,domain?.chromosome)
         if ((!genomeConfig[props.assembly] || !genomeConfig[props.assembly].domain) && chromLength) {
             if (transcriptCoordinates) {
                 let genelength = transcriptCoordinates.coordinates.end - transcriptCoordinates.coordinates.start;
@@ -354,7 +355,19 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                     <br />
                     <div style={{ width: '75%', margin: '0 auto' }}>
                         <SearchBoxComponent
-                            onSearchSubmit={(domain: string) => onDomainChanged(parseDomain(domain))}
+                            onSearchSubmit={(domain: string, name?: string, isSnp?: boolean) => {
+                                let d: Domain = parseDomain(domain);
+                                console.log(d, 'd');
+                                if (isSnp) {
+                                    d = {
+                                        ...d,
+                                        start: d.start - 10000,
+                                        end: d.end + 10000,
+                                    };
+                                    setAnchor(name);
+                                }
+                                onDomainChanged(d);
+                            }}
                             assembly={props.assembly === 'hg38' ? 'GRCh38' : props.assembly}
                         />
                     </div>

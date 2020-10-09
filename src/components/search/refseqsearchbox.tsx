@@ -52,7 +52,7 @@ const RefSeqSearchBox: React.FC<RefSeqSearchBoxProps> = (props) => {
             <Form onSubmit={onSubmit}>
                 <Search
                     input={{ fluid: true }}
-                    placeholder="enter gene name or locus"
+                    placeholder="enter gene name"
                     onSearchChange={onSearchChange}
                     onResultSelect={onResultSelect}
                     results={results}

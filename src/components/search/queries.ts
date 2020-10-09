@@ -1,3 +1,15 @@
+export const SNP_AUTOCOMPLETE_QUERY = `
+    query suggestions($assembly: String!, $snpid: String!) { 
+        snpAutocompleteQuery(assembly: $assembly, snpid: $snpid) {
+            rsId
+            coordinates {
+                chromosome
+                start
+                end
+            }
+        }
+    }`;
+
 export const GENE_AUTOCOMPLETE_QUERY = `
     query Genes(
         $id: [String]
@@ -8,6 +20,7 @@ export const GENE_AUTOCOMPLETE_QUERY = `
         $end: Int
         $gene_type: String
         $havana_id: String
+        $orderby: String
         $name_prefix: String
         $limit: Int
         $assembly: String!
@@ -20,6 +33,7 @@ export const GENE_AUTOCOMPLETE_QUERY = `
             start: $start
             end: $end
             gene_type: $gene_type
+            orderby: $orderby
             havana_id: $havana_id
             name_prefix: $name_prefix
             limit: $limit
