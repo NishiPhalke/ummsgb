@@ -2,7 +2,7 @@ import React from 'react';
 import { Header, Grid, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
-import dna from '../../../dna.png';
+import dna from '../../../images/dna.png';
 
 const Genomes: React.FC = () => (
     <Grid.Row>

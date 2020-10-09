@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ASSEMBLY_QUERY } from './queries';
 import { AssemblyInfo } from '../../genomes/page/types';
-import { Segment, Container, Grid, Header, Input } from 'semantic-ui-react';
+import { Segment, Container, Grid, Header, Input, Image } from 'semantic-ui-react';
 import MainMenu from './../homepage/masthead/menu';
 import { mainMenuItems } from './../homepage/config/menuitems';
-import dna from '../../dna.png';
+import dna from '../../images/dna.png';
+import humanIcon from '../../images/humanicon.png';
+import mouseIcon from '../../images/mouse.png';
 import { Link } from 'react-router-dom';
 import ContentDivider from './../homepage/content/divider';
 const groupBySpecies = (assemblies: AssemblyInfo[]) => {
@@ -40,7 +42,6 @@ const GenomePage: React.FC = () => {
         fetchData();
     }, []);
     const onSearchChange = useCallback((e, d) => {
-        //setSearchVal(d.result);
         setQ(e.target.value.toLowerCase());
     }, []);
     let groupedAssemblies = assemblies && groupBySpecies(assemblies);
@@ -71,6 +72,14 @@ const GenomePage: React.FC = () => {
                                 </Header>
                                 Click a link to open the UMMS Genome Browser for that assembly.
                             </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row centered>
+                        <Grid.Column width={2} >
+                            <Image height={100} as={Link} to="/browser/hg38" width={100} src={humanIcon} alt="Human icon" />
+                        </Grid.Column>
+                        <Grid.Column width={2} >
+                            <Image height={100} as={Link} to="/browser/mm10" width={100} src={mouseIcon} alt="Mouse icon" />
+                        </Grid.Column>
                         </Grid.Row>
                         <Grid.Row>
                             <Grid.Column>

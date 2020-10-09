@@ -104,7 +104,7 @@ export const rampageplus = (domain: Domain) => ({
     url: 'gs://data.genomealmanac.org/rampage.plus.bigWig',
     preRenderedWidth: 1850,
     id: 'rampplus',
-    title: 'rampage plus',
+    title: 'RAMPAGE plus',
     color: '#000000',
     zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
@@ -121,7 +121,7 @@ export const rampageminus = (domain: Domain) => ({
     url: 'gs://data.genomealmanac.org/rampage.minus.bigWig',
     preRenderedWidth: 1850,
     id: 'rampminus',
-    title: 'rampage minus',
+    title: 'RAMPAGE minus',
     color: '#000000',
     zoomLevel: Math.round((domain.end - domain.start) / 1850),
 });
