@@ -48,7 +48,7 @@ const tracks = (range: Domain) => [
     rampageminus(range),
 ];
 
-const ldTrack_Limit = 5000000;
+const ldTrack_Limit = 1000000;
 const BamTrack_Limit = 50000;
 const transcriptPack_Limit = 3000000;
 const transcript_Limit = 10000000;
@@ -61,10 +61,10 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
         defaultTracksModes[t.id] = trackType === 'BIGBED' ? 'dense' : trackType === 'BIGWIG' ? 'full' : 'dense';
     });
     defaultTracksModes['transcript'] = '';
-    defaultTracksModes['ASN_LdTrack'] = 'dense';
-    defaultTracksModes['AFR_LdTrack'] = 'dense';
-    defaultTracksModes['EUR_LdTrack'] = 'dense';
-    defaultTracksModes['AMR_LdTrack'] = 'dense';
+    defaultTracksModes['ASN LD'] = 'dense';
+    defaultTracksModes['AFR LD'] = 'dense';
+    defaultTracksModes['EUR LD'] = 'dense';
+    defaultTracksModes['AMR LD'] = 'dense';
 
     let noOfRows = +(+Math.round((tracks(props.domain).length + 5) / 5)).toFixed() + 1;
     const [defaultTracks, setDefaultTracks] = useState<Record<string, string>>(defaultTracksModes);
@@ -91,6 +91,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
         <Container style={{ width: '90%' }}>
             <GenomeBrowser
                 width="100%"
+                dragRegionHeight={60}
                 innerWidth={2000}
                 domain={props.domain}
                 onDomainChanged={props.onDomainChanged}
@@ -269,9 +270,9 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         assembly={'hg38'}
                         endpoint={'https://snps.staging.wenglab.org/graphql'}
                     >
-                        {defaultTracks['EUR_LdTrack'] === 'hide' ? (
-                            <WrappedTrack width={2000} height={0} id={'EUR_LdTrack'}>
-                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'EUR_LdTrack'} />
+                        {defaultTracks['EUR LD'] === 'hide' ? (
+                            <WrappedTrack width={2000} height={0} id={'EUR LD'}>
+                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'EUR LD'} />
                             </WrappedTrack>
                         ) : (
                             <WrappedLDTrack
@@ -280,16 +281,16 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 height={100}
                                 domain={props.domain}
                                 width={2000}
-                                id={'EUR_LdTrack'}
-                                title={'common EUROPEAN SNPs with LD'}
+                                id={'EUR LD'}
+                                title={'Common European SNPs with Linkage Disequilibrium'}
                                 onVariantClick={(snp: { rsId: string }) => {
                                     props.setAnchor && props.setAnchor(snp.rsId);
                                 }}
                             />
                         )}
-                        {defaultTracks['AMR_LdTrack'] === 'hide' ? (
-                            <WrappedTrack width={2000} height={0} id={'AMR_LdTrack'}>
-                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'AMR_LdTrack'} />
+                        {defaultTracks['AMR LD'] === 'hide' ? (
+                            <WrappedTrack width={2000} height={0} id={'AMR LD'}>
+                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'AMR LD'} />
                             </WrappedTrack>
                         ) : (
                             <WrappedLDTrack
@@ -298,16 +299,16 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 height={100}
                                 domain={props.domain}
                                 width={2000}
-                                id={'AMR_LdTrack'}
-                                title={'common AMERICAN SNPs with LD'}
+                                id={'AMR LD'}
+                                title={'Common American SNPs with Linkage Disequilibrium'}
                                 onVariantClick={(snp: { rsId: string }) => {
                                     props.setAnchor && props.setAnchor(snp.rsId);
                                 }}
                             />
                         )}
-                        {defaultTracks['ASN_LdTrack'] === 'hide' ? (
-                            <WrappedTrack width={2000} height={0} id={'ASN_LdTrack'}>
-                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'ASN_LdTrack'} />
+                        {defaultTracks['ASN LD'] === 'hide' ? (
+                            <WrappedTrack width={2000} height={0} id={'ASN LD'}>
+                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'ASN LD'} />
                             </WrappedTrack>
                         ) : (
                             <WrappedLDTrack
@@ -316,16 +317,16 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 trackMargin={12}
                                 domain={props.domain}
                                 width={2000}
-                                id={'ASN_LdTrack'}
-                                title={'common ASIAN SNPs with LD'}
+                                id={'ASN LD'}
+                                title={'Common Asian SNPs with Linkage Disequilibrium'}
                                 onVariantClick={(snp: { rsId: string }) => {
                                     props.setAnchor && props.setAnchor(snp.rsId);
                                 }}
                             />
                         )}
-                        {defaultTracks['AFR_LdTrack'] === 'hide' ? (
-                            <WrappedTrack width={2000} height={0} id={'AFR_LdTrack'}>
-                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'AFR_LdTrack'} />
+                        {defaultTracks['AFR LD'] === 'hide' ? (
+                            <WrappedTrack width={2000} height={0} id={'AFR LD'}>
+                                <EmptyTrack width={2000} transform={'translate (0,0)'} height={0} id={'AFR LD'} />
                             </WrappedTrack>
                         ) : (
                             <WrappedLDTrack
@@ -334,8 +335,8 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 trackMargin={12}
                                 domain={props.domain}
                                 width={2000}
-                                id={'AFR_LdTrack'}
-                                title={'common AFRICAN SNPs with LD'}
+                                id={'AFR LD'}
+                                title={'Common African SNPs with Linkage Disequilibrium'}
                                 onVariantClick={(snp: { rsId: string }) => {
                                     props.setAnchor && props.setAnchor(snp.rsId);
                                 }}
@@ -343,12 +344,12 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         )}
                     </GraphQLLDTrack>
                 ) : (
-                    <WrappedTrack id="EUR_LdTrack" width={2000} height={50}>
+                    <WrappedTrack id="Empty LdTrack" width={2000} height={50}>
                         <EmptyTrack
-                            id="EUR_LdTrack"
+                            id="Empty LdTrack"
                             height={50}
                             width={2000}
-                            text={'Zoom in to view LdTracks'}
+                            text={'Zoom in to view Linkage Disequilibrium Tracks'}
                             transform={'translate (0,0)'}
                         />
                     </WrappedTrack>
@@ -598,7 +599,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                                           { text: 'squish', value: 'squish' },
                                                           { text: 'hide', value: 'hide' },
                                                       ]
-                                                    : t.includes('LdTrack')
+                                                    : t.includes('LD')
                                                     ? [
                                                           { text: 'dense', value: 'dense' },
                                                           { text: 'hide', value: 'hide' },

@@ -85,7 +85,6 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
         }
     }, [props.assembly]);
     useEffect(() => {
-        console.log(chromLength,domain?.chromosome)
         if ((!genomeConfig[props.assembly] || !genomeConfig[props.assembly].domain) && chromLength) {
             if (transcriptCoordinates) {
                 let genelength = transcriptCoordinates.coordinates.end - transcriptCoordinates.coordinates.start;

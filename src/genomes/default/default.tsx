@@ -57,6 +57,7 @@ const DefaultBrowser: React.FC<DefaultProps> = (props) => {
         <Container style={{ width: '90%' }}>
             <GenomeBrowser
                 width="100%"
+                dragRegionHeight={70}
                 innerWidth={2000}
                 domain={props.domain}
                 svgRef={props.svgRef}

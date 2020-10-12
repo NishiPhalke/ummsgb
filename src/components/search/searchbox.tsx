@@ -60,11 +60,11 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
                 value.length <= 5
             ) {
                 rs = [
-                    { title: value + ':' + '1' + '-100000', description: '' + '\n' + value + ':' + '1' + '-100000' },
-                    { title: value + ':' + '1' + '-1000000', description: '' + '\n' + value + ':' + '1' + '-1000000' },
+                    { title: value + ':1-100000', description: '' + '\n' + value + ':1-100000' },
+                    { title: value + ':1-1000000', description: ''+ '\n' + value + ':1-1000000' },
                     {
-                        title: value + ':' + '1' + '-10000000',
-                        description: '' + '\n' + value + ':' + '1' + '-10000000',
+                        title: value + ':1-10000000',
+                        description: '' + '\n' + value + ':1-10000000',
                     },
                 ];
             }

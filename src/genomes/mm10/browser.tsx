@@ -67,6 +67,7 @@ const Mm10Browser: React.FC<Mm10BrowserProps> = (props) => {
             <GenomeBrowser
                 width="100%"
                 innerWidth={2000}
+                dragRegionHeight={70}
                 domain={props.domain}
                 svgRef={props.svgRef}
                 onDomainChanged={props.onDomainChanged}

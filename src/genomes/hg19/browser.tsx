@@ -84,6 +84,7 @@ const Hg19Browser: React.FC<Hg19BrowserProps> = (props) => {
                 width="100%"
                 innerWidth={2000}
                 domain={props.domain}
+                dragRegionHeight={70}
                 svgRef={props.svgRef}
                 onDomainChanged={props.onDomainChanged}
                 onModeChange={(id: string, mode: string) => {
