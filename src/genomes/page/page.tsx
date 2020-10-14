@@ -75,7 +75,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
             });
             let data = (await response.json()).data;
             let genes = data?.refseqgenes && data?.refseqgenes.length ? data?.refseqgenes : data?.refseqxenogenes;
-            if (!genes || !genes.length || !genes[0].transcripts || !genes[0].transcripts) {
+            if (!genes || !genes.length || !genes[0].transcripts || !genes[0].transcripts) {            
                 setTranscriptCoordinates(undefined);
             }
             setTranscriptCoordinates(genes[0].transcripts[0]);
@@ -130,22 +130,20 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
     }, [props.assembly, transcriptCoordinates, props.session, chromosome, fetchChromLength]);
 
     useEffect(() => {
-        let d: Domain | undefined =
-            (props.session && props.session.domain) ||
-            (genomeConfig[props.assembly]
-                ? genomeConfig[props.assembly].domain
-                : transcriptCoordinates && {
-                      chromosome: transcriptCoordinates.coordinates.chromosome,
-                      start: transcriptCoordinates.coordinates.start,
-                      end: transcriptCoordinates.coordinates.end,
-                  });
+        const d: Domain | undefined = (
+            transcriptCoordinates ? {
+                chromosome: transcriptCoordinates.coordinates.chromosome,
+                start: transcriptCoordinates.coordinates.start,
+                end: transcriptCoordinates.coordinates.end,
+            } : props.session?.domain || genomeConfig[props.assembly]?.domain
+        );
         d &&
             setDomain({
                 chromosome: d.chromosome,
                 start: d.start,
                 end: d.end,
             });
-    }, [props.assembly, transcriptCoordinates, props.session]);
+    }, [props.assembly, transcriptCoordinates, props.session ]);
     const saveSession = () => {
         const sessionDetails = JSON.stringify({
             customTracks: customTracks,
@@ -159,6 +157,7 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
 
     const onDomainChanged = React.useCallback(
         (d: Domain) => {
+            if (d.chromosome) setTranscriptCoordinates({ coordinates: { chromosome: d.chromosome!, start: d.start, end: d.end } });
             if (d.chromosome && d.chromosome !== domain!!.chromosome) {
                 fetchChromLength(d.chromosome).then((chrLen) => {
                     const start = d.start < 0 ? 0 : d.start;
@@ -356,7 +355,6 @@ const GenomeBrowserPage: React.FC<GenomeBrowserPageProps> = (props) => {
                         <SearchBoxComponent
                             onSearchSubmit={(domain: string, name?: string, isSnp?: boolean) => {
                                 let d: Domain = parseDomain(domain);
-                                console.log(d, 'd');
                                 if (isSnp) {
                                     d = {
                                         ...d,

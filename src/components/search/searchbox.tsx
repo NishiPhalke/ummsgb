@@ -23,7 +23,7 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
             props.onSearchSubmit(coords.length === 2 ? coords[1] : coords[0], gene.title, !(coords.length === 2));
     }, [searchVal, results, props, selectedSearchVal]);
     const onSearchChange = useCallback(
-        async (e, { value }) => {
+        async (_, { value }) => {
             let val: string = value.toLowerCase();
             let rs: Result[] = [];
             setSearchVal(value);

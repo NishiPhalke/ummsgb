@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ASSEMBLY_QUERY } from './queries';
 import { AssemblyInfo } from '../../genomes/page/types';
-import { Segment, Container, Grid, Header, Input, Image } from 'semantic-ui-react';
+import { Segment, Container, Grid, Header, Input, Divider, Button } from 'semantic-ui-react';
 import MainMenu from './../homepage/masthead/menu';
 import { mainMenuItems } from './../homepage/config/menuitems';
 import dna from '../../images/dna.png';
-import humanIcon from '../../images/humanicon.png';
-import mouseIcon from '../../images/mouse.png';
 import { Link } from 'react-router-dom';
 import ContentDivider from './../homepage/content/divider';
 const groupBySpecies = (assemblies: AssemblyInfo[]) => {
@@ -61,25 +59,44 @@ const GenomePage: React.FC = () => {
                 <Container>
                     <Grid>
                         <Grid.Row />
+                        <Grid.Row />
+                        <Grid.Row>                         
+                            <Grid.Column className="middle aligned" width={14}>
+                                <Header as="h1">
+                                    Browse popular assemblies:
+                                </Header>
+                                Click a button to open the UMMS Genome Browser for that assembly.
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row centered>
+                            <Grid.Column width={5} >
+                                <Button size="huge" as={Link} to="/browser/hg38">
+                                    <span style={{ fontSize: '1.5em' }}>Browse Human</span><br />
+                                    hg38
+                                </Button>
+                            </Grid.Column>
+                            <Grid.Column width={5} >
+                                <Button size="huge" as={Link} to="/browser/mm10">
+                                    <span style={{ fontSize: '1.5em' }}>Browse Mouse</span><br />
+                                    mm10
+                                </Button>
+                            </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row>
+                            <Grid.Column width={16}><Divider /></Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row />
                         <Grid.Row>
                             <Grid.Column width={2}>
                                 <img src={dna} alt="DNA icon" />
                             </Grid.Column>
                             <Grid.Column className="middle aligned" width={14}>
                                 <Header as="h1">
-                                    Browse {assemblies.length} assemblies from {Object.keys(groupedAssemblies).length}{' '}
-                                    species
+                                    Or, browse one of {assemblies.length} assemblies from {Object.keys(groupedAssemblies).length}{' '}
+                                    species:
                                 </Header>
                                 Click a link to open the UMMS Genome Browser for that assembly.
                             </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row centered>
-                        <Grid.Column width={2} >
-                            <Image height={100} as={Link} to="/browser/hg38" width={100} src={humanIcon} alt="Human icon" />
-                        </Grid.Column>
-                        <Grid.Column width={2} >
-                            <Image height={100} as={Link} to="/browser/mm10" width={100} src={mouseIcon} alt="Mouse icon" />
-                        </Grid.Column>
                         </Grid.Row>
                         <Grid.Row>
                             <Grid.Column>

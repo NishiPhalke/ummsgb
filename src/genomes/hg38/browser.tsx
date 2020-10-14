@@ -266,7 +266,7 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                         transform={'translate (0,0)'}
                         id={'hg38_ldtrack'}
                         population={['EUR', 'AMR', 'ASN', 'AFR']}
-                        anchor={props.anchor}
+                        anchor={props.anchor || "rs141121886"}
                         assembly={'hg38'}
                         endpoint={'https://snps.staging.wenglab.org/graphql'}
                     >
