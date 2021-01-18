@@ -40,10 +40,10 @@ const SearchBox: React.FC<SearchBoxProps> = (props) => {
                     ?.slice(0, 3)
                     .map(
                         (result: {
-                            rsId: string;
+                            id: string;
                             coordinates: { chromosome: string; start: number; end: number };
                         }) => ({
-                            title: result.rsId,
+                            title: result.id,
                             description:
                                 result.coordinates.chromosome +
                                 ':' +

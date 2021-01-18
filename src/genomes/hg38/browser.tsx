@@ -283,8 +283,8 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 width={2000}
                                 id={'EUR LD'}
                                 title={'Common European SNPs with Linkage Disequilibrium'}
-                                onVariantClick={(snp: { rsId: string }) => {
-                                    props.setAnchor && props.setAnchor(snp.rsId);
+                                onVariantClick={(snp: { id: string }) => {
+                                    props.setAnchor && props.setAnchor(snp.id);
                                 }}
                             />
                         )}
@@ -301,8 +301,8 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 width={2000}
                                 id={'AMR LD'}
                                 title={'Common American SNPs with Linkage Disequilibrium'}
-                                onVariantClick={(snp: { rsId: string }) => {
-                                    props.setAnchor && props.setAnchor(snp.rsId);
+                                onVariantClick={(snp: { id: string }) => {
+                                    props.setAnchor && props.setAnchor(snp.id);
                                 }}
                             />
                         )}
@@ -319,8 +319,8 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 width={2000}
                                 id={'ASN LD'}
                                 title={'Common Asian SNPs with Linkage Disequilibrium'}
-                                onVariantClick={(snp: { rsId: string }) => {
-                                    props.setAnchor && props.setAnchor(snp.rsId);
+                                onVariantClick={(snp: { id: string }) => {
+                                    props.setAnchor && props.setAnchor(snp.id);
                                 }}
                             />
                         )}
@@ -337,8 +337,8 @@ const Hg38Browser: React.FC<Hg38BrowserProps> = (props) => {
                                 width={2000}
                                 id={'AFR LD'}
                                 title={'Common African SNPs with Linkage Disequilibrium'}
-                                onVariantClick={(snp: { rsId: string }) => {
-                                    props.setAnchor && props.setAnchor(snp.rsId);
+                                onVariantClick={(snp: { id: string }) => {
+                                    props.setAnchor && props.setAnchor(snp.id);
                                 }}
                             />
                         )}

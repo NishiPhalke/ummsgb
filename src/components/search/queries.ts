@@ -1,7 +1,7 @@
 export const SNP_AUTOCOMPLETE_QUERY = `
     query suggestions($assembly: String!, $snpid: String!) { 
         snpAutocompleteQuery(assembly: $assembly, snpid: $snpid) {
-            rsId
+            id
             coordinates {
                 chromosome
                 start
